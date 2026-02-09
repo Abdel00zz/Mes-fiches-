@@ -1,0 +1,298 @@
+{
+  "title": "Les fonctions exponentielles",
+  "subtitle": "Fiche de révision complète — Cours, propriétés & exercices",
+  "blocks": [
+    {
+      "id": "sec_pre",
+      "type": "section",
+      "title": "Prérequis — Rappels sur la fonction ln",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "act_pre1",
+      "type": "activite",
+      "title": "Activité préliminaire — Fonction ln",
+      "content": "Quel est le domaine de définition de la fonction $\\ln$ ?",
+      "zones": [
+        { "id": "z1", "height": 30, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "act_pre2",
+      "type": "activite",
+      "title": "Activité préliminaire (suite)",
+      "content": "La fonction $\\ln$ est-elle continue sur son domaine ? Justifier.",
+      "zones": [
+        { "id": "z2", "height": 30, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "act_var",
+      "type": "activite",
+      "title": "Tableau de variation & valeurs",
+      "content": "Dresser le tableau de variation de la fonction $\\ln$ sur $]0 ; +\\infty[$.",
+      "zones": [
+        { "id": "z3", "height": 50, "style": "blank" }
+      ],
+      "images": []
+    },
+    {
+      "id": "act_lim",
+      "type": "activite",
+      "title": "Valeurs et limites de ln",
+      "content": "Compléter :\n- $\\ln(1) = ...$\n- $\\ln(e) = ...$\n- $\\displaystyle \\lim_{x \\to 0^+} \\ln(x) = ...$\n- $\\displaystyle \\lim_{x \\to +\\infty} \\ln(x) = ...$",
+      "zones": [
+        { "id": "z4", "height": 30, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "act_alg",
+      "type": "activite",
+      "title": "Propriétés algébriques de ln",
+      "content": "Pour $a, b > 0$ et $n \\in \\mathbb{Z}$ :\n- $\\ln(ab) = ...$\n- $\\ln(\\frac{a}{b}) = ...$\n- $\\ln(a^n) = ...$",
+      "zones": [
+        { "id": "z5", "height": 30, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "rem_recip",
+      "type": "remarque",
+      "title": "Passage à la réciproque",
+      "content": "La fonction $\\ln$ est **continue** et **strictement croissante** sur $]0 ; +\\infty[$, et $\\ln(]0;+\\infty[) = \\mathbb{R}$.\nDonc $\\ln$ admet une **fonction réciproque** définie sur $\\mathbb{R}$, à valeurs dans $]0 ; +\\infty[$. Cette fonction réciproque est appelée **fonction exponentielle népérienne**, notée $\\exp$.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "sec_exp",
+      "type": "section",
+      "title": "Fonction exponentielle népérienne",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "def_exp",
+      "type": "definition",
+      "title": "Fonction exponentielle",
+      "content": "La fonction $\\ln$ possède une fonction réciproque notée $\\exp$, définie et continue sur $\\mathbb{R}$, appelée **fonction exponentielle**.\n$$y = \\ln(x) \\text{ et } x > 0 \\iff x = \\exp(y) \\text{ et } y \\in \\mathbb{R}$$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_lien",
+      "type": "propriete",
+      "title": "Lien ln <-> exp",
+      "content": "- $\\forall x \\in \\mathbb{R} : \\ln(\\exp(x)) = x$\n- $\\forall x > 0 : \\exp(\\ln(x)) = x$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_comp",
+      "type": "propriete",
+      "title": "Comparaison",
+      "content": "- $\\exp(x) = \\exp(y) \\iff x = y$ \n- $\\exp(x) > \\exp(y) \\iff x > y$\n- $\\exp(x) \\geqslant 1 \\iff x \\geqslant 0$ \n- $\\exp(x) \\leqslant 1 \\iff x \\leqslant 0$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_eq",
+      "type": "application",
+      "title": "Équations et inéquations",
+      "content": "**Exemple corrigé :** Résoudre $\\exp(2x+4) = \\exp(\\frac{x}{2})$\n$\\exp(2x+4)=\\exp(\\frac{x}{2}) \\iff 2x+4 = \\frac{x}{2} \\iff 3x = -8 \\iff x = -\\frac{8}{3}$\n\n**À vous :**\na) Résoudre : $\\exp(x^2 - 6) \\leqslant \\exp(-5x)$",
+      "zones": [
+        { "id": "z_app1", "height": 50, "style": "grid" }
+      ],
+      "images": []
+    },
+    {
+      "id": "prop_rules",
+      "type": "propriete",
+      "title": "Règles de calcul",
+      "content": "Pour $x,y \\in \\mathbb{R}, r \\in \\mathbb{Q}$ :\n- $e^{x+y} = e^x \\cdot e^y$ \n- $e^{x-y} = \\frac{e^x}{e^y}$ \n- $e^{-x} = \\frac{1}{e^x}$ \n- $e^{rx} = (e^x)^r$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_res",
+      "type": "application",
+      "title": "Résolution d'équations",
+      "content": "**Exemple corrigé :** $e^x - 1 = 0 \\iff e^x = e^0 \\iff x = 0$\n\n**À vous :**\na) $e^{x-1} = e$ \nb) $e^{x^2-x} = 1$",
+      "zones": [
+        { "id": "z_app2", "height": 40, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "app_res_suite",
+      "type": "application",
+      "title": "Suite",
+      "content": "c) $e^{2x} - 3e^x + 2 = 0 \\quad (Poser X = e^x)$",
+      "zones": [
+        { "id": "z_app2_c", "height": 40, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "app_simp",
+      "type": "application",
+      "title": "Simplification",
+      "content": "**Simplifier :**\na) $A = e^{2+\\ln(8)} + e^{\\frac{1}{3}\\ln(16)} \\times e^{\\ln(4)}$",
+      "zones": [
+        { "id": "z_simp_a", "height": 40, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "app_simp_suite",
+      "type": "application",
+      "title": "Suite",
+      "content": "b) $B = e^{\\ln(x)} - \\ln(2e^x) - \\ln(\\frac{1}{2})$\nc) $D = (e^x + e^{-x})^2 - (e^x - e^{-x})^2$",
+      "zones": [
+        { "id": "z_simp_bc", "height": 60, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "sec_deriv",
+      "type": "section",
+      "title": "Dérivation de exp",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_deriv",
+      "type": "propriete",
+      "title": "Dérivée de exp",
+      "content": "$$\\boxed{\\forall x \\in \\mathbb{R}, \\quad (e^x)' = e^x}$$\nLa fonction $\\exp$ est **continue** et **strictement croissante** sur $\\mathbb{R}$.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_deriv_u",
+      "type": "propriete",
+      "title": "Dérivée de $e^{u(x)}$",
+      "content": "Soit $u$ dérivable sur $I$. Alors :\n$$\\boxed{(e^{u(x)})' = u'(x) e^{u(x)}}$$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_calc_deriv",
+      "type": "application",
+      "title": "Calcul de dérivées",
+      "content": "**Exemple :** $f(x) = e^{2x} - 4e^x + 1 \\implies f'(x) = 2e^{2x} - 4e^x = 2e^x(e^x - 2)$\n\n**À vous :**\na) $f(x) = e^{3x^2 - 5x}$",
+      "zones": [
+        { "id": "z_deriv_a", "height": 30, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "app_calc_deriv_suite",
+      "type": "application",
+      "title": "Suite",
+      "content": "b) $f(x) = \\sin(x)e^{\\cos(x)} + \\cos(x)e^{\\sin(x)}$\nc) $f(x) = 3e^{\\sqrt{x}} - e^{-x} + e^{1/x}$",
+      "zones": [
+        { "id": "z_deriv_bc", "height": 50, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "sec_lim",
+      "type": "section",
+      "title": "Limites usuelles",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_lim_bornes",
+      "type": "propriete",
+      "title": "Limites aux bornes",
+      "content": "$$\\lim_{x \\to +\\infty} e^x = +\\infty \\qquad \\lim_{x \\to -\\infty} e^x = 0$$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_croissance",
+      "type": "propriete",
+      "title": "Croissances comparées",
+      "content": "$$\\lim_{x \\to +\\infty} \\frac{e^x}{x} = +\\infty \\qquad \\lim_{x \\to -\\infty} xe^x = 0 \\qquad \\lim_{x \\to 0} \\frac{e^x - 1}{x} = 1$$\n\n**Généralisation :** Pour tout $n \\geqslant 1$ : $\\displaystyle \\lim_{x \\to +\\infty} \\frac{e^x}{x^n} = +\\infty$ et $\\displaystyle \\lim_{x \\to -\\infty} x^n e^x = 0$.\n« L'exponentielle croît plus vite que tout polynôme. »",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_lim",
+      "type": "application",
+      "title": "Calcul de limites",
+      "content": "**Exemple :** $\\lim_{x \\to +\\infty} (x - e^x)$ : On factorise par $e^x$ : $x - e^x = e^x(\\frac{x}{e^x} - 1) \\to -\\infty$.\n\n**À vous :**\na) $\\lim_{x \\to +\\infty} (e^{2x} - e^x)$ \nb) $\\lim_{x \\to -\\infty} (x-1)e^x$",
+      "zones": [
+        { "id": "z_lim_ab", "height": 40, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "app_lim_suite",
+      "type": "application",
+      "title": "Suite",
+      "content": "c) $\\lim_{x \\to 0} \\frac{e^{2x}-1}{4x}$ \nd) $\\lim_{x \\to +\\infty} \\frac{e^x-1}{3x}$ \ne) $\\lim_{x \\to +\\infty} \\frac{x-e^x}{e^x-1}$ \nf) $\\lim_{x \\to 0^-} \\frac{1}{x}e^{1/x}$",
+      "zones": [
+        { "id": "z_lim_cdef", "height": 60, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "sec_synth",
+      "type": "section",
+      "title": "Synthèse — Étude complète",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "act_synth",
+      "type": "activite",
+      "title": "Étude de fonction — Synthèse",
+      "content": "Soit $f$ définie sur $\\mathbb{R}$ par $f(x) = (x-2)e^x$.\n\nDomaine de définition de $f$.",
+      "zones": [
+        { "id": "z_synth1", "height": 30, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "act_synth2",
+      "type": "activite",
+      "title": "Synthèse (suite)",
+      "content": "Calculer $\\lim_{x \\to -\\infty} f(x)$ et $\\lim_{x \\to +\\infty} f(x)$. Interpréter graphiquement.",
+      "zones": [
+        { "id": "z_synth2", "height": 40, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "act_synth3",
+      "type": "activite",
+      "title": "Synthèse (suite)",
+      "content": "Montrer que $f'(x) = (x-1)e^x$. Dresser le tableau de variation.",
+      "zones": [
+        { "id": "z_synth3", "height": 60, "style": "grid" }
+      ],
+      "images": []
+    },
+    {
+      "id": "act_synth4",
+      "type": "activite",
+      "title": "Synthèse (fin)",
+      "content": "Équation de la tangente à $\\mathcal{C}_f$ au point d'abscisse $0$.\nRésoudre $f(x)=0$ et étudier le signe de $f(x)$.",
+      "zones": [
+        { "id": "z_synth4", "height": 60, "style": "lines" }
+      ],
+      "images": []
+    }
+  ]
+}

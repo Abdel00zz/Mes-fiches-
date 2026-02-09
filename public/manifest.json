@@ -1,0 +1,26 @@
+
+{
+  "meta": {
+    "appName": "FicheBuilder Pro",
+    "version": "1.2.0",
+    "description": "Educational Sheet Builder Engine"
+  },
+  "config": {
+    "defaultLanguage": "fr",
+    "autoSaveInterval": 1000
+  },
+  "resources": {
+    "initialSheets": [
+      {
+        "url": "/exponentials.json",
+        "id": "demo_exponentials",
+        "priority": 1
+      },
+      {
+        "url": "/derivability.json",
+        "id": "demo_derivability",
+        "priority": 2
+      }
+    ]
+  }
+}

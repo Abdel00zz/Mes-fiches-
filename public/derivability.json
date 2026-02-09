@@ -1,0 +1,313 @@
+{
+  "title": "Dérivation",
+  "subtitle": "Dérivabilité, fonctions dérivées et applications",
+  "blocks": [
+    {
+      "id": "section_1",
+      "type": "section",
+      "title": "Dérivabilité en un point",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "act_1",
+      "type": "activite",
+      "title": "Introduction par l'exemple",
+      "content": "On considère la fonction $f$ définie sur $\\mathbb{R}$ par $f(x) = x^2$.\n\n**Objectif :** Comprendre comment mesurer la variation instantanée de $f$ en un point.\n\n**Question 1 :** Calculer le taux de variation de $f$ entre $x = 3$ et $x$ quelconque :\n$$\\frac{f(x) - f(3)}{x - 3} = \\frac{x^2 - 9}{x - 3}$$\nFactoriser et simplifier, puis déterminer la limite lorsque $x \\to 3$.\n\n**Question 2 :** Ce résultat représente la pente de la tangente à la courbe au point d'abscisse 3. Le calculer pour $a = -1$ de la même manière.",
+      "zones": [
+        { "id": "z1", "height": 35, "style": "lines" },
+        { "id": "z2", "height": 30, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "def_1",
+      "type": "definition",
+      "title": "Dérivabilité et nombre dérivé",
+      "content": "Soit $f$ une fonction définie sur un intervalle ouvert $I$ et $a \\in I$.\n\nOn dit que $f$ est **dérivable en $a$** si la limite suivante existe et est finie :\n$$\\boxed{\\lim_{x \\to a} \\frac{f(x) - f(a)}{x - a} = l}$$\n\nLe nombre réel $l$ est appelé le **nombre dérivé** de $f$ en $a$, noté $f'(a)$.\n\n**Interprétation :** Ce nombre représente la pente de la courbe au point d'abscisse $a$, c'est-à-dire le coefficient directeur de la tangente en ce point.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "rem_1",
+      "type": "remarque",
+      "title": "Forme alternative",
+      "content": "En posant $h = x - a$ (donc $x = a + h$), on obtient une formulation équivalente :\n$$f'(a) = \\lim_{h \\to 0} \\frac{f(a+h) - f(a)}{h}$$\n\n**Méthode conseillée :** Pour les calculs à la main, la forme $\\frac{f(x)-f(a)}{x-a}$ est souvent plus commode car elle évite les développements avec $(a+h)^n$.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_1",
+      "type": "application",
+      "title": "Calculs de nombres dérivés",
+      "content": "**Exemple corrigé :** Calcul de $f'(2)$ pour $f(x) = x^3$.\n\nÉcrivons le taux de variation :\n$$\\frac{f(x) - f(2)}{x - 2} = \\frac{x^3 - 8}{x - 2}$$\n\nFactorisons $x^3 - 8 = (x-2)(x^2 + 2x + 4)$, donc :\n$$\\frac{f(x) - f(2)}{x - 2} = x^2 + 2x + 4 \\xrightarrow[x \\to 2]{} 4 + 4 + 4 = 12$$\n\nAinsi $f'(2) = 12$.\n\n**À vous de jouer :**\n\\begin{enumerate}\n\\item Calculer $f'(4)$ pour $f(x) = x^2$ (utiliser l'identité $x^2 - 16 = (x-4)(x+4)$)\n\\item Calculer $f'(0)$ pour $f(x) = \\sin(2x)$ (utiliser $\\lim_{x \\to 0} \\frac{\\sin(x)}{x} = 1$)\n\\item Calculer $f'(2)$ pour $f(x) = 2x^2 - 7x + 7$\n\\item Calculer $f'(0)$ pour $f(x) = \\cos(x)$ (utiliser $1 - \\cos(x) = 2\\sin^2(x/2)$)\n\\end{enumerate}",
+      "zones": [
+        { "id": "z1", "height": 20, "style": "lines" },
+        { "id": "z2", "height": 30, "style": "lines" },
+        { "id": "z3", "height": 30, "style": "lines" },
+        { "id": "z4", "height": 35, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "section_2",
+      "type": "section",
+      "title": "Interprétation géométrique",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_1",
+      "type": "propriete",
+      "title": "Tangente à une courbe",
+      "content": "Soit $f$ dérivable en $a$ et $(C_f)$ sa courbe représentative.\n\nLa **tangente** à $(C_f)$ au point $A(a, f(a))$ est la droite passant par $A$ de coefficient directeur $f'(a)$.\n\n**Équation de la tangente :**\n$$\\boxed{y = f'(a)(x - a) + f(a)}$$\n\n**Lien avec le nombre dérivé :** Le nombre $f'(a)$ est donc le coefficient directeur (la pente) de cette tangente.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_2",
+      "type": "application",
+      "title": "Détermination d'une tangente",
+      "content": "**Exemple corrigé :** Soit $f(x) = \\sqrt{x+3}$. Déterminer l'équation de la tangente au point d'abscisse 1.\n\n**Étape 1 :** Calculer $f(1) = \\sqrt{4} = 2$.\n\n**Étape 2 :** Calculer $f'(1)$ par la limite :\n$$\\frac{f(x) - f(1)}{x - 1} = \\frac{\\sqrt{x+3} - 2}{x - 1} = \\frac{(\\sqrt{x+3} - 2)(\\sqrt{x+3} + 2)}{(x-1)(\\sqrt{x+3} + 2)} = \\frac{x-1}{(x-1)(\\sqrt{x+3}+2)}$$\n\nPour $x \\neq 1$ : $\\frac{1}{\\sqrt{x+3}+2} \\xrightarrow[x \\to 1]{} \\frac{1}{4}$\n\n**Étape 3 :** Équation : $y = \\frac{1}{4}(x-1) + 2 = \\frac{1}{4}x + \\frac{7}{4}$.\n\n**À vous de jouer :** Soit $f(x) = \\frac{2x+3}{x-1}$. Déterminer l'équation de la tangente au point d'abscisse 2.",
+      "zones": [{ "id": "z1", "height": 50, "style": "lines" }],
+      "images": []
+    },
+    {
+      "id": "section_3",
+      "type": "section",
+      "title": "Approximation affine",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "def_2",
+      "type": "definition",
+      "title": "Linéarisation d'une fonction",
+      "content": "Soit $f$ dérivable en $a$. Il existe une fonction $\\varepsilon$ telle que $\\lim_{x \\to a} \\varepsilon(x) = 0$ et :\n$$f(x) = f(a) + f'(a)(x-a) + (x-a)\\varepsilon(x)$$\n\nLa fonction affine $g(x) = f(a) + f'(a)(x-a)$ est appelée **approximation affine** de $f$ au voisinage de $a$.\n\n**Conséquence pratique :** Pour $x$ proche de $a$ : $\\boxed{f(x) \\approx f(a) + f'(a)(x-a)}$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_3",
+      "type": "application",
+      "title": "Application au calcul approché",
+      "content": "**Exemple corrigé :** Approximation de $(1,001)^2$.\n\nSoit $f(x) = (1+x)^2 = 1 + 2x + x^2$. On veut approcher $f(0,001)$.\n\n**Étape 1 :** $f(0) = 1$ et $f'(0) = \\lim_{x \\to 0} \\frac{(1+x)^2 - 1}{x} = \\lim_{x \\to 0} \\frac{2x+x^2}{x} = 2$.\n\n**Étape 2 :** Approximation affine : $f(x) \\approx 1 + 2x$.\n\n**Étape 3 :** $(1,001)^2 = f(0,001) \\approx 1 + 2 \\times 0,001 = 1,002$.\n\n(Valeur exacte : $1,002001$ — erreur de $0,000001$)\n\n**À vous de jouer :** En utilisant $f(x) = (1+x)^2$, calculer une valeur approchée de $(1,009)^2$.",
+      "zones": [{ "id": "z1", "height": 30, "style": "lines" }],
+      "images": []
+    },
+    {
+      "id": "section_4",
+      "type": "section",
+      "title": "Dérivabilité à droite et à gauche",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "def_3",
+      "type": "definition",
+      "title": "Dérivées unilatérales",
+      "content": "**Dérivabilité à droite :**\n$$f'_d(a) = \\lim_{x \\to a^+} \\frac{f(x) - f(a)}{x - a}$$\n\n**Dérivabilité à gauche :**\n$$f'_g(a) = \\lim_{x \\to a^-} \\frac{f(x) - f(a)}{x - a}$$\n\n**Condition de dérivabilité :**\n$$\\boxed{f \\text{ dérivable en } a \\iff f'_d(a) \\text{ et } f'_g(a) \\text{ existent et sont égaux}}$$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "ex_1",
+      "type": "exemple",
+      "title": "Point anguleux classique",
+      "content": "Étudions la dérivabilité en 0 de $f(x) = |x^2 - x|$.\n\nPour $x < 0$ : $f(x) = x^2 - x$ (car $x^2 - x > 0$), donc :\n$$\\frac{f(x) - f(0)}{x - 0} = \\frac{x^2 - x}{x} = x - 1 \\xrightarrow[x \\to 0^-]{} -1$$\nAinsi $f'_g(0) = -1$. Demi-tangente : $y = -x$ pour $x \\leq 0$.\n\nPour $x > 0$ proche de 0 : $f(x) = -(x^2 - x) = -x^2 + x$ (car $x^2 - x < 0$), donc :\n$$\\frac{f(x) - f(0)}{x - 0} = \\frac{-x^2 + x}{x} = -x + 1 \\xrightarrow[x \\to 0^+]{} 1$$\nAinsi $f'_d(0) = 1$. Demi-tangente : $y = x$ pour $x \\geq 0$.\n\n**Conclusion :** $f'_g(0) \\neq f'_d(0)$, donc $f$ n'est pas dérivable en 0. Le point $O$ est un **point anguleux**.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_4",
+      "type": "application",
+      "title": "Étude de dérivabilité unilatérale",
+      "content": "**Exemple corrigé :** Soit $f(x) = \\begin{cases} \\sqrt{x} & \\text{si } x \\geq 4 \\\\ x^2 + 3 & \\text{si } x < 4 \\end{cases}$ en $a = 4$.\n\n**Continuité :** $f(4) = 2$ et $\\lim_{x \\to 4^-} (x^2+3) = 19$. Non continue, donc non dérivable !\n\n**Correction :** Prenons plutôt $f(x) = \\begin{cases} \\sqrt{x} & \\text{si } x \\geq 4 \\\\ \\frac{x+4}{4} & \\text{si } x < 4 \\end{cases}$ pour avoir la continuité.\n\n**À vous de jouer :** Étudier la dérivabilité de $f(x) = |x - 3|$ en $a = 3$.",
+      "zones": [{ "id": "z1", "height": 45, "style": "lines" }],
+      "images": []
+    },
+    {
+      "id": "section_5",
+      "type": "section",
+      "title": "Fonction dérivée",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "def_4",
+      "type": "definition",
+      "title": "Dérivée sur un intervalle",
+      "content": "Soit $f$ définie sur un intervalle ouvert $I$.\n\nOn dit que $f$ est **dérivable sur $I$** si $f$ est dérivable en tout point de $I$.\n\nLa **fonction dérivée** $f'$ associe à chaque $x \\in I$ le nombre dérivé $f'(x)$.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_4",
+      "type": "propriete",
+      "title": "Tableau des dérivées usuelles",
+      "content": "$$\\begin{array}{|c|c|c|c|}\n\\hline\nf(x) & \\text{Domaine } D_f & \\text{Domaine } D_{f'} & f'(x) \\\\\n\\hline\nx^n \\, (n \\in \\mathbb{N}^*) & \\mathbb{R} & \\mathbb{R} & nx^{n-1} \\\\\n\\hline\n\\frac{1}{x} & \\mathbb{R}^* & \\mathbb{R}^* & -\\frac{1}{x^2} \\\\\n\\hline\n\\frac{1}{x^n} \\, (n \\geq 1) & \\mathbb{R}^* & \\mathbb{R}^* & -\\frac{n}{x^{n+1}} \\\\\n\\hline\n\\sqrt{x} & [0; +\\infty[ & ]0; +\\infty[ & \\frac{1}{2\\sqrt{x}} \\\\\n\\hline\n\\cos(x) & \\mathbb{R} & \\mathbb{R} & -\\sin(x) \\\\\n\\hline\n\\sin(x) & \\mathbb{R} & \\mathbb{R} & \\cos(x) \\\\\n\\hline\n\\tan(x) & \\mathbb{R} \\setminus \\{\\frac{\\pi}{2}+k\\pi\\} & \\text{idem} & 1 + \\tan^2(x) \\\\\n\\hline\n\\end{array}$$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_7",
+      "type": "application",
+      "title": "Calculs de dérivées",
+      "content": "**Exemple corrigé :** Dériver $f(x) = x^{2026}$.\n\nDirectement : $f'(x) = 2026x^{2025}$.\n\n**À vous de jouer :**\n\\begin{enumerate}\n\\item $f(x) = x^5$\n\\item $f(x) = \\frac{1}{x^9} = x^{-9}$\n\\item $f(x) = -5x + 3$\n\\item $f(x) = \\sin(-5x + 3)$ (utiliser la formule de dérivation en chaîne)\n\\end{enumerate}",
+      "zones": [
+        { "id": "z1", "height": 15, "style": "lines" },
+        { "id": "z2", "height": 15, "style": "lines" },
+        { "id": "z3", "height": 15, "style": "lines" },
+        { "id": "z4", "height": 20, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "section_6",
+      "type": "section",
+      "title": "Opérations sur les dérivées",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_5",
+      "type": "propriete",
+      "title": "Règles de dérivation",
+      "content": "Soit $u$ et $v$ dérivables sur $I$, $\\alpha \\in \\mathbb{R}$, $n \\in \\mathbb{N}^*$ :\n\n$$\\begin{array}{|c|c|}\n\\hline\n\\text{Fonction} & \\text{Dérivée} \\\\\n\\hline\nu + v & u' + v' \\\\\n\\hline\n\\alpha u & \\alpha u' \\\\\n\\hline\nu \\times v & u'v + uv' \\\\\n\\hline\nu^n & n \\cdot u' \\cdot u^{n-1} \\\\\n\\hline\n\\frac{1}{u} & -\\frac{u'}{u^2} \\quad (u \\neq 0) \\\\\n\\hline\n\\frac{u}{v} & \\frac{u'v - uv'}{v^2} \\quad (v \\neq 0) \\\\\n\\hline\n\\sqrt{u} & \\frac{u'}{2\\sqrt{u}} \\quad (u > 0) \\\\\n\\hline\n\\end{array}$$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_8",
+      "type": "application",
+      "title": "Dérivées de fonctions composées",
+      "content": "**Exemple corrigé :** Calculer la dérivée de $f(x) = (2x^2 + 3x + 1)^4$.\n\nPosons $u(x) = 2x^2 + 3x + 1$, alors $f = u^4$.\n\n$$f'(x) = 4 \\cdot u'(x) \\cdot u(x)^3 = 4(4x+3)(2x^2+3x+1)^3$$\n\n**À vous de jouer :**\n\\begin{enumerate}\n\\item $f(x) = \\sqrt{x} + x^5$\n\\item $f(x) = x^6 \\cos(x)$\n\\item $f(x) = (2x+3)^8$\n\\item $f(x) = \\frac{3x+6}{4x+7}$\n\\item $f(x) = \\sqrt{x^7 \\sin(x)}$\n\\end{enumerate}",
+      "zones": [
+        { "id": "z1", "height": 18, "style": "lines" },
+        { "id": "z2", "height": 20, "style": "lines" },
+        { "id": "z3", "height": 18, "style": "lines" },
+        { "id": "z4", "height": 20, "style": "lines" },
+        { "id": "z5", "height": 25, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "section_7",
+      "type": "section",
+      "title": "Dérivées successives",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "def_6",
+      "type": "definition",
+      "title": "Dérivées d'ordre supérieur",
+      "content": "Si $f'$ est dérivable, sa dérivée est appelée **dérivée seconde**, notée $f''$ ou $f^{(2)}$.\n\nPar récurrence, la **dérivée $n$-ième** $f^{(n)}$ est définie par :\n$$f^{(n)} = \\left(f^{(n-1)}\\right)'$$\n\n**Écriture différentielle :** $f'(x) = \\frac{dy}{dx}$, $f''(x) = \\frac{d^2y}{dx^2}$",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_10",
+      "type": "application",
+      "title": "Calculs de dérivées successives",
+      "content": "**Exemple corrigé :** Dérivées de $f(x) = \\frac{1}{x}$.\n\n$$f(x) = x^{-1}, \\quad f'(x) = -x^{-2} = -\\frac{1}{x^2}, \\quad f''(x) = 2x^{-3} = \\frac{2}{x^3}, \\quad f^{(3)}(x) = -6x^{-4} = -\\frac{6}{x^4}$$\n\n**À vous de jouer :** Pour $f(x) = \\cos(x)$, calculer $\\cos'$, $\\cos''$, $\\cos^{(3)}$, $\\cos^{(4)}$ et conjecturer une formule générale pour $\\cos^{(n)}(x)$.",
+      "zones": [{ "id": "z1", "height": 50, "style": "lines" }],
+      "images": []
+    },
+    {
+      "id": "section_8",
+      "type": "section",
+      "title": "Dérivée et variations",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_7",
+      "type": "theoreme",
+      "title": "Lien dérivée et monotonie",
+      "content": "Soit $f$ dérivable sur un intervalle $I$ :\n\n\\begin{itemize}\n\\item $f'(x) \\geq 0$ sur $I$ $\\iff$ $f$ est croissante sur $I$\n\\item $f'(x) \\leq 0$ sur $I$ $\\iff$ $f$ est décroissante sur $I$\n\\item $f'(x) = 0$ sur $I$ $\\iff$ $f$ est constante sur $I$\n\\end{itemize}\n\n**Stricte monotonie :** Si $f' > 0$ (sauf en des points isolés), alors $f$ est strictement croissante.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_11",
+      "type": "application",
+      "title": "Étude complète d'une fonction",
+      "content": "**Exemple corrigé :** Étude de $f(x) = -x^3 + x^2 + 5x + 1$.\n\n**Domaine :** $\\mathbb{R}$ (polynôme)\n\n**Dérivée :** $f'(x) = -3x^2 + 2x + 5$\n\n**Signe de $f'$ :** $-3x^2 + 2x + 5 = 0$ donne $x = \\frac{5}{3}$ ou $x = -1$.\n\nTableau de variations : $f$ croissante sur $[-1; \\frac{5}{3}]$, décroissante ailleurs.\n\n**À vous de jouer :** Étudier les variations de $f(x) = \\frac{2x+3}{x-1}$.",
+      "zones": [
+        { "id": "z1", "height": 20, "style": "lines" },
+        { "id": "z2", "height": 20, "style": "lines" },
+        { "id": "z3", "height": 25, "style": "lines" },
+        { "id": "z4", "height": 50, "style": "grid" }
+      ],
+      "images": []
+    },
+    {
+      "id": "section_9",
+      "type": "section",
+      "title": "Dérivée et extremums",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "prop_8",
+      "type": "theoreme",
+      "title": "Condition nécessaire d'extremum",
+      "content": "Soit $f$ dérivable sur un intervalle ouvert $I$ et $a \\in I$.\n\nSi $f$ admet un **extremum local** en $a$, alors :\n$$\\boxed{f'(a) = 0}$$\n\nLa tangente est alors horizontale.\n\n**Condition suffisante :** Si $f'$ s'annule en changeant de signe en $a$, alors $f(a)$ est un extremum local.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "rem_9",
+      "type": "remarque",
+      "title": "Point d'inflexion horizontal",
+      "content": "La réciproque est fausse : $f'(a) = 0$ n'implique pas forcément un extremum.\n\n**Contre-exemple :** $f(x) = (x-1)^3$ vérifie $f'(1) = 0$ mais $f'$ ne change pas de signe en 1 (toujours positive). Le point $(1,0)$ est un **point d'inflexion** à tangente horizontale.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_12",
+      "type": "application",
+      "title": "Recherche d'extremums",
+      "content": "**Exemple corrigé :** Extremums de $h(x) = x^3 + 3x^2$ sur $\\mathbb{R}$.\n\n**Étape 1 :** $h'(x) = 3x^2 + 6x = 3x(x+2)$. Points critiques : $x = 0$ et $x = -2$.\n\n**Étape 2 :** Tableau de signes de $h'$ :\n- Pour $x < -2$ : $h' > 0$\n- Pour $-2 < x < 0$ : $h' < 0$  \n- Pour $x > 0$ : $h' > 0$\n\n**Étape 3 :** Maximum local en $-2$ ($h(-2) = 4$), minimum local en $0$ ($h(0) = 0$).\n\n**À vous de jouer :** Montrer que $g(x) = \\frac{1}{1+x^4}$ admet un maximum global.",
+      "zones": [
+        { "id": "z1", "height": 45, "style": "lines" },
+        { "id": "z2", "height": 40, "style": "lines" }
+      ],
+      "images": []
+    },
+    {
+      "id": "section_10",
+      "type": "section",
+      "title": "Équations différentielles",
+      "content": "",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "def_7",
+      "type": "definition",
+      "title": "Équation $y'' + \\omega^2 y = 0$",
+      "content": "Une **équation différentielle** relie une fonction et ses dérivées.\n\nL'équation $y'' + \\omega^2 y = 0$ (avec $\\omega \\neq 0$) modélise les oscillations harmoniques.\n\n**Solutions générales :**\n$$\\boxed{y(x) = a\\cos(\\omega x) + b\\sin(\\omega x)}$$\noù $a$ et $b$ sont des constantes réelles déterminées par les conditions initiales.",
+      "zones": [],
+      "images": []
+    },
+    {
+      "id": "app_13",
+      "type": "application",
+      "title": "Résolution d'équations différentielles",
+      "content": "**Exemple corrigé :** Résoudre $y'' + 16y = 0$ avec $y(0) = 0$ et $y'(0) = -1$.\n\n**Étape 1 :** $\\omega^2 = 16$ donc $\\omega = 4$. Solutions : $y(x) = a\\cos(4x) + b\\sin(4x)$.\n\n**Étape 2 :** $y(0) = a = 0$, donc $y(x) = b\\sin(4x)$.\n\n**Étape 3 :** $y'(x) = 4b\\cos(4x)$, donc $y'(0) = 4b = -1$, soit $b = -\\frac{1}{4}$.\n\n**Solution :** $y(x) = -\\frac{1}{4}\\sin(4x)$.\n\n**À vous de jouer :** Résoudre $y'' + 9y = 0$.",
+      "zones": [{ "id": "z1", "height": 35, "style": "lines" }],
+      "images": []
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FicheBuilder Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Inter"', 'sans-serif'],
+              serif: ['"Merriweather"', 'serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            },
+            colors: {
+              sheet: '#ffffff',
+              'soft-blue': '#eef2f6',
+              'print-border': '#e2e8f0',
+            },
+            boxShadow: {
+              'engraved': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06), 0 1px 2px 0 rgba(255, 255, 255, 0.5)',
+              'relief': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7)',
+              'float': '0 20px 40px -5px rgba(30, 41, 59, 0.1)',
+            }
+          },
+        },
+      }
+    </script>
+    <!-- MathJax Configuration -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          packages: {'[+]': ['base', 'ams']},
+          processEscapes: true
+        },
+        options: {
+          ignoreHtmlClass: 'tex2jax_ignore',
+          processHtmlClass: 'math-content'
+        },
+        chtml: {
+          scale: 1,
+          minScale: .5,
+          matchFontHeight: true,
+          displayAlign: 'center',
+        },
+        startup: {
+          typeset: false 
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+      body {
+        background-color: #eef2f6; /* Bleu doux */
+        color: #1e293b;
+      }
+      
+      .math-content {
+        outline: none;
+      }
+
+      /* Print Optimization - Force Landscape & Engraved Look */
+      @media print {
+        @page {
+          size: landscape; 
+          margin: 4mm; /* Very small margins */
+        }
+        
+        html, body {
+          height: 100%;
+          width: 100%;
+          background-color: #eef2f6 !important; /* Force soft blue background */
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        #root {
+            width: 100%;
+        }
+
+        .no-print {
+          display: none !important;
+        }
+
+        .screen-only {
+          display: none !important;
+        }
+
+        .print-only {
+          display: block !important;
+          width: 100% !important;
+          height: auto !important;
+          padding: 0 !important;
+        }
+
+        .avoid-break {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        
+        /* Two columns layout for landscape fluidity */
+        .print-columns {
+           column-count: 2;
+           column-gap: 8mm;
+        }
+      }
+
+      @media screen {
+        .print-only {
+          display: none !important;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
