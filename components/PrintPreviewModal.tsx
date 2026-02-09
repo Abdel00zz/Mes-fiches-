@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SheetState, BlockData } from '../types';
 import { PrintLayout } from './PrintLayout';
@@ -105,13 +104,15 @@ export const PrintPreviewModal: React.FC<Props> = ({ isOpen, onClose, sheet, blo
                         </Select>
                     </Control>
                     <Control label="Colonnes">
-                       <Select value={options.columns} onChange={(e) => setOptions(o => ({...o, columns: parseInt(e.target.value)}))}>
+                       {/* Fix: Cast parsed integer to the correct literal type for 'columns'. */}
+<Select value={options.columns} onChange={(e) => setOptions(o => ({...o, columns: parseInt(e.target.value) as 1 | 2}))}>
                             <option value={1}>1 Colonne</option>
                             <option value={2}>2 Colonnes</option>
                         </Select>
                     </Control>
                      <Control label="Taille Police">
-                        <Select value={options.fontSize} onChange={(e) => setOptions(o => ({...o, fontSize: parseInt(e.target.value)}))}>
+                        {/* Fix: Cast parsed integer to the correct literal type for 'fontSize'. */}
+<Select value={options.fontSize} onChange={(e) => setOptions(o => ({...o, fontSize: parseInt(e.target.value) as 10 | 11 | 12}))}>
                             <option value={10}>Petite (10pt)</option>
                             <option value={11}>Normale (11pt)</option>
                             <option value={12}>Grande (12pt)</option>
