@@ -15,35 +15,34 @@ const MARGINS = {
 
 export const generatePrintCSS = (options: PrintOptions): string => {
     return `
-      /* Dynamically Generated Print Styles */
-
       /* Page Setup */
       @page {
         size: ${options.paper} ${options.orientation};
         margin: ${MARGINS[options.margin]};
       }
-      
+
       /* Base Document Styles */
       #print-preview-sheet .print-layout,
       body.printing-active {
         font-size: ${options.fontSize}pt;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        color: #0f172a !important;
+        color: #1e293b !important;
+        line-height: 1.5;
       }
-      
+
       body.printing-active {
         background: #fff !important;
       }
-      
+
       /* Layout & Flow */
       #print-preview-sheet .print-flow {
         column-count: ${options.columns};
-        column-gap: ${options.columns > 1 ? '8mm' : '0'};
+        column-gap: ${options.columns > 1 ? '6mm' : '0'};
         column-fill: auto;
       }
 
-      /* Break Avoidance: Crucial for layout stability */
+      /* Break Avoidance */
       .avoid-break,
       #print-preview-sheet .print-block,
       #print-preview-sheet .print-zone,
@@ -53,70 +52,71 @@ export const generatePrintCSS = (options: PrintOptions): string => {
       }
 
       #print-preview-sheet .print-section {
-         column-span: ${options.columns > 1 ? 'all' : 'auto'};
+        column-span: ${options.columns > 1 ? 'all' : 'auto'};
+        margin-top: 3mm !important;
+        margin-bottom: 2mm !important;
+        border: none !important;
       }
 
-      /* Block & Component Styling */
+      /* Block Styling — left accent preserved, no other borders */
       #print-preview-sheet .print-block {
-          margin: 0 0 3.2mm 0 !important;
-          border: 0.25mm solid rgba(148, 163, 184, 0.65) !important;
-          border-radius: 1.6mm !important;
-          box-shadow: none !important;
-          background: rgba(241, 245, 249, 0.45) !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
+        margin: 0 0 2mm 0 !important;
+        border-top: none !important;
+        border-right: none !important;
+        border-bottom: none !important;
+        /* border-left is set per-block via Tailwind type colors */
+        border-radius: 1mm !important;
+        box-shadow: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
-      
+
       #print-preview-sheet .print-block-header {
-          border-bottom: 0.25mm dashed rgba(148, 163, 184, 0.7) !important;
+        border: none !important;
       }
-      
-      #print-preview-sheet .print-section {
-          margin-top: 1mm !important;
-          margin-bottom: 3mm !important;
-          border-bottom-width: 0.4mm !important;
-          border-color: #0f172a !important;
-      }
-      
+
+      /* Answer Zones */
       #print-preview-sheet .print-zone-pattern {
         background-attachment: local !important;
         background-repeat: repeat !important;
         opacity: 1 !important;
       }
-      
+
       #print-preview-sheet .print-rich-zone {
-          border-color: #64748b !important;
-          border-width: 0.25mm !important;
-          border-style: solid !important;
-          background-color: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        border-width: 0.2mm !important;
+        border-style: solid !important;
+        background-color: #ffffff !important;
       }
-      
+
+      /* Images */
       #print-preview-sheet .print-hq-image,
       #print-preview-sheet .print-zone-image {
-          image-rendering: auto;
-          page-break-inside: avoid;
+        image-rendering: auto;
+        page-break-inside: avoid;
       }
 
+      /* Footer */
       #print-preview-sheet .print-footer {
-          color: #475569 !important;
-          border-color: #cbd5e1 !important;
-          column-span: ${options.columns > 1 ? 'all' : 'auto'};
+        color: #94a3b8 !important;
+        border: none !important;
+        column-span: ${options.columns > 1 ? 'all' : 'auto'};
       }
 
-      /* MathJax specific overrides */
+      /* MathJax */
       #print-preview-sheet .MathJax,
       #print-preview-sheet mjx-container {
         color: inherit !important;
         break-inside: avoid;
         page-break-inside: avoid;
       }
-      
-      /* Final overrides for sizing and preview */
+
+      /* Preview Sheet Sizing */
       #print-preview-sheet {
-          width: ${options.orientation === 'landscape' ? (options.paper === 'a4' ? '297mm' : '11in') : (options.paper === 'a4' ? '210mm' : '8.5in')};
-          min-height: ${options.orientation === 'landscape' ? (options.paper === 'a4' ? '210mm' : '8.5in') : (options.paper === 'a4' ? '297mm' : '11in')};
-          padding: ${MARGINS[options.margin]};
-          box-sizing: border-box;
+        width: ${options.orientation === 'landscape' ? (options.paper === 'a4' ? '297mm' : '11in') : (options.paper === 'a4' ? '210mm' : '8.5in')};
+        min-height: ${options.orientation === 'landscape' ? (options.paper === 'a4' ? '210mm' : '8.5in') : (options.paper === 'a4' ? '297mm' : '11in')};
+        padding: ${MARGINS[options.margin]};
+        box-sizing: border-box;
       }
     `;
 };

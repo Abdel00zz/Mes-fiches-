@@ -16,23 +16,23 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
        <div className="bg-white mx-auto w-full max-w-none print:w-full">
            
            {/* Print Header */}
-           <header className="print-section mb-6 pb-3 text-center border-b-2 border-slate-900 avoid-break">
-              <MathContent 
-                html={sheet.title} 
-                tagName="h1" 
-                className="text-4xl font-serif font-black text-slate-900 mb-2 uppercase tracking-tighter"
+           <header className="print-section mb-5 pb-4 text-center avoid-break">
+              <MathContent
+                html={sheet.title}
+                tagName="h1"
+                className="text-3xl font-serif font-black text-slate-900 mb-1.5 tracking-tight"
                 readOnly
               />
-              <MathContent 
-                html={sheet.subtitle} 
-                tagName="div" 
-                className="text-lg text-slate-600 font-medium font-mono tracking-tight"
+              <MathContent
+                html={sheet.subtitle}
+                tagName="div"
+                className="text-base text-slate-500 font-medium tracking-wide"
                 readOnly
               />
            </header>
 
-           {/* Standard Flow Layout (Single Column) */}
-           <div className="print-flow space-y-3">
+           {/* Standard Flow Layout */}
+           <div className="print-flow space-y-2">
               {blocks.map((block) => (
                 <PrintBlock 
                   key={block.id} 
@@ -43,9 +43,9 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
            </div>
 
            {/* Print Footer */}
-           <div className="print-footer mt-6 pt-3 border-t border-slate-200 flex justify-between text-[9px] text-slate-500 font-mono uppercase tracking-[0.2em] avoid-break">
-              <span>Généré avec FicheBuilder Pro</span>
-              <span>{new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+           <div className="print-footer mt-8 pt-2 flex justify-between text-[8pt] text-slate-400 avoid-break">
+              <span>FicheBuilder Pro</span>
+              <span>{new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
            </div>
        </div>
     </div>
