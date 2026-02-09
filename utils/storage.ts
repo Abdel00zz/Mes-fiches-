@@ -26,8 +26,8 @@ const sanitizeBlock = (block: any): BlockData => {
     type: type as BlockType,
     title: block.title || '',
     content: block.content || block.body || '', // Support legacy "body"
-    zones: (Array.isArray(block.zones) ? block.zones : (Array.isArray(block.answerZones) ? block.answerZones : [])).map(z => ({...z, id: z.id || Math.random().toString(36).substr(2, 9)})),
-    images: (Array.isArray(block.images) ? block.images : []).map(i => ({...i, id: i.id || Math.random().toString(36).substr(2, 9)}))
+    zones: (Array.isArray(block.zones) ? block.zones : (Array.isArray(block.answerZones) ? block.answerZones : [])).map((z: any) => ({...z, id: z.id || Math.random().toString(36).substr(2, 9)})),
+    images: (Array.isArray(block.images) ? block.images : []).map((i: any) => ({...i, id: i.id || Math.random().toString(36).substr(2, 9)}))
   };
 };
 
