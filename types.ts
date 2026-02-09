@@ -44,6 +44,15 @@ export interface SheetState {
   updatedAt?: number;
 }
 
+export interface SheetMeta {
+  id: string;
+  title: string;
+  subtitle: string;
+  updatedAt: number;
+  blockCount: number;
+  preview?: string;
+}
+
 // Config Chic & Moderne (Pastel, box colorées, badges artistiques)
 export const BLOCK_CONFIG: Record<BlockType, { label: string; badgeBg: string; badgeText: string; containerBg: string; borderColor: string }> = {
   section:     { label: 'Partie',      badgeBg: 'bg-slate-900',   badgeText: 'text-white',      containerBg: 'bg-white',      borderColor: 'border-slate-900' },

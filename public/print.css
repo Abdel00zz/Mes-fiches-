@@ -103,10 +103,14 @@ img, svg {
   print-color-adjust: exact !important;
 }
 
-/* Clean Block Style - remove colored backgrounds for a LaTeX look */
+/* Rich Block Style - keep colors and add a defined frame */
 .block-container-print {
-  background: white !important;
-  border: 1px solid #e5e7eb !important; /* Gray-200 */
+  /* The component's Tailwind classes will now provide the colors. */
+  /* We just enhance the border to make it more pronounced for print. */
+  border-width: 1px !important;
+  border-style: solid !important;
+  /* Adds a very subtle inner shadow to give depth, simulating a frame. */
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Badges (Definition, Propriété, etc.) - Keep color for semantics */

@@ -1,5 +1,4 @@
-
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useMemo, useCallback } from 'react';
 import { BlockData, BLOCK_CONFIG, BlockImage } from '../types';
 import { MathContent } from './MathContent';
 import { AnswerZone } from './AnswerZone';
@@ -9,6 +8,7 @@ import {
   ArrowUpFromLine, ArrowDownFromLine, WrapText, ArrowUp, ArrowDown,
   Code2, Check, Copy
 } from 'lucide-react';
+import { BlockImageComponent } from './BlockImage';
 
 interface BlockProps {
   data: BlockData;
@@ -32,6 +32,9 @@ export const Block: React.FC<BlockProps> = memo(({
   const [isDragOver, setIsDragOver] = useState(false);
   const [dragLocation, setDragLocation] = useState<'top' | 'bottom' | 'float' | null>(null);
   const [isRawMode, setIsRawMode] = useState(false);
+
+  // Performance: Memoize the processed content to avoid re-calculating on every render
+  const processedContent = useMemo(() => processContentForDisplay(data.content), [data.content]);
 
   // --- Section Rendering (Partie A, B...) ---
   if (data.type === 'section') {
@@ -126,42 +129,13 @@ export const Block: React.FC<BlockProps> = memo(({
 
   const addZone = () => onUpdate(data.id, { zones: [...data.zones, { id: Date.now().toString(), height: 40, style: 'lines' }] });
   
-  const updateImage = (imgId: string, updates: Partial<BlockImage>) => {
+  const updateImage = useCallback((imgId: string, updates: Partial<BlockImage>) => {
     onUpdate(data.id, { images: data.images.map(img => img.id === imgId ? { ...img, ...updates } : img) });
-  };
+  }, [data.id, data.images, onUpdate]);
 
-  const renderSingleImage = (img: BlockImage) => {
-    const containerStyle: React.CSSProperties = { width: `${img.width}%`, marginBottom: '0.5rem', position: 'relative', zIndex: 20 };
-    let containerClass = "relative group/img transition-all duration-300 ease-out ";
-    
-    if (img.position === 'float') {
-      containerClass += img.align === 'left' ? "float-left mr-6 mb-2 clear-left" : "float-right ml-6 mb-2 clear-right";
-    } else {
-      containerClass += "flex w-full mb-4 ";
-      containerClass += img.align === 'left' ? "justify-start" : img.align === 'right' ? "justify-end" : "justify-center";
-    }
-
-    return (
-      <div key={img.id} className={containerClass} style={img.position === 'float' ? containerStyle : undefined}>
-        <div className="relative shadow-md rounded-md overflow-hidden bg-white hover:shadow-xl transition-shadow border border-slate-100" style={img.position !== 'float' ? { width: `${img.width}%` } : { width: '100%' }}>
-          <img src={img.src} alt="" className="w-full h-auto object-cover" />
-          
-          <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity bg-white/95 shadow-lg rounded-lg border border-slate-100 z-50 no-print p-1 scale-90 group-hover/img:scale-100 origin-top-right">
-             <div className="flex gap-1 justify-center mb-1">
-              <button onClick={() => updateImage(img.id, { position: 'top', align: 'center', width: 60 })} className={`p-1.5 rounded hover:bg-blue-50 ${img.position === 'top' ? 'text-blue-600 bg-blue-50' : 'text-slate-600'}`} title="Haut"><ArrowUpFromLine size={14} /></button>
-              <button onClick={() => updateImage(img.id, { position: 'float', align: 'right', width: 30 })} className={`p-1.5 rounded hover:bg-blue-50 ${img.position === 'float' ? 'text-blue-600 bg-blue-50' : 'text-slate-600'}`} title="Intégré"><WrapText size={14} /></button>
-              <button onClick={() => updateImage(img.id, { position: 'bottom', align: 'center', width: 60 })} className={`p-1.5 rounded hover:bg-blue-50 ${img.position === 'bottom' ? 'text-blue-600 bg-blue-50' : 'text-slate-600'}`} title="Bas"><ArrowDownFromLine size={14} /></button>
-            </div>
-            <div className="px-1 py-1 border-t border-slate-100">
-               <label className="text-[9px] text-slate-400 uppercase font-bold">Taille: {img.width}%</label>
-               <input type="range" min="15" max="100" step="5" value={img.width} onChange={(e) => updateImage(img.id, { width: parseInt(e.target.value) })} className="w-full h-1.5 bg-slate-200 rounded-full cursor-pointer accent-blue-600 mt-1" />
-            </div>
-            <button onClick={() => onUpdate(data.id, { images: data.images.filter(i => i.id !== img.id) })} className="mt-1 p-1 w-full text-center hover:bg-red-50 text-red-500 rounded text-[10px] font-bold uppercase tracking-wider transition-colors">Supprimer</button>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const deleteImage = useCallback((imgId: string) => {
+    onUpdate(data.id, { images: data.images.filter(i => i.id !== imgId) });
+  }, [data.id, data.images, onUpdate]);
 
   const topImages = data.images.filter(img => img.position === 'top');
   const bottomImages = data.images.filter(img => img.position === 'bottom');
@@ -251,10 +225,10 @@ export const Block: React.FC<BlockProps> = memo(({
       {/* Content Body */}
       <div className="px-5 pb-5 pt-2 flow-root text-slate-800">
         
-        {topImages.length > 0 && <div className="flex flex-col w-full mb-4 items-center">{topImages.map(renderSingleImage)}</div>}
+        {topImages.length > 0 && <div className="flex flex-col w-full mb-4 items-center">{topImages.map(img => <BlockImageComponent key={img.id} img={img} onUpdate={(updates) => updateImage(img.id, updates)} onDelete={() => deleteImage(img.id)} />)}</div>}
         
         {/* Float images */}
-        {floatImages.map(renderSingleImage)}
+        {floatImages.map(img => <BlockImageComponent key={img.id} img={img} onUpdate={(updates) => updateImage(img.id, updates)} onDelete={() => deleteImage(img.id)} />)}
 
         {isRawMode ? (
             <div className="relative animate-in fade-in zoom-in duration-200">
@@ -272,14 +246,14 @@ export const Block: React.FC<BlockProps> = memo(({
             </div>
         ) : (
             <MathContent
-              html={processContentForDisplay(data.content)}
+              html={processedContent}
               className="text-[1rem] text-justify min-h-[1.5em] leading-relaxed selection:bg-blue-200/50"
               onChange={(html) => onUpdate(data.id, { content: html })}
-              placeholder="Contenu du bloc... (Supporte LaTeX $\LaTeX$)"
+              placeholder="Contenu du bloc... (Supporte LaTeX $\\LaTeX$)"
             />
         )}
 
-        {bottomImages.length > 0 && <div className="flex flex-col w-full mt-4 items-center">{bottomImages.map(renderSingleImage)}</div>}
+        {bottomImages.length > 0 && <div className="flex flex-col w-full mt-4 items-center">{bottomImages.map(img => <BlockImageComponent key={img.id} img={img} onUpdate={(updates) => updateImage(img.id, updates)} onDelete={() => deleteImage(img.id)} />)}</div>}
 
         {data.zones.length > 0 && (
           <div className="mt-4 space-y-3 clear-both">

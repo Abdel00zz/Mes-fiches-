@@ -1,16 +1,8 @@
 
-import { SheetState, BlockData, BlockType, BLOCK_CONFIG } from '../types';
+import { SheetState, BlockData, BlockType, BLOCK_CONFIG, SheetMeta } from '../types';
 
 const PREFIX = 'fb_pro_';
 const INDEX_KEY = 'fb_pro_index';
-
-export interface SheetMeta {
-  id: string;
-  title: string;
-  subtitle: string;
-  updatedAt: number;
-  preview?: string;
-}
 
 // Validation et réparation des blocs importés
 const sanitizeBlock = (block: any): BlockData => {
@@ -78,7 +70,8 @@ export const saveSheet = (sheet: SheetState, id?: string): string => {
       id: sheetId,
       title: cleanSheet.title,
       subtitle: cleanSheet.subtitle,
-      updatedAt: cleanSheet.updatedAt!
+      updatedAt: cleanSheet.updatedAt!,
+      blockCount: cleanSheet.blocks.filter(b => b.type !== 'section').length
     };
 
     if (existingIdx >= 0) {

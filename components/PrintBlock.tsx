@@ -59,9 +59,9 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
   const bottomImages = data.images.filter(img => img.position === 'bottom');
   const floatImages = data.images.filter(img => img.position === 'float');
 
-  // Cleaned up classes - print.css handles the container style
+  // Apply dynamic background and border colors for a rich print style
   return (
-    <div className="relative mb-4 rounded-lg avoid-break block-container-print w-full">
+    <div className={`relative mb-4 rounded-lg avoid-break block-container-print w-full ${config.containerBg} ${config.borderColor} border`}>
       {/* Header - Compact */}
       <div className="flex items-start gap-2 px-4 pt-3 pb-1.5">
         <div className={`
