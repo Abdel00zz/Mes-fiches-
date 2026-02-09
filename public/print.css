@@ -1,8 +1,12 @@
-
 /* 
   FicheBuilder Pro - Optimized Print Stylesheet 
-  This stylesheet is now used by html2canvas to render the sheet before PDF generation.
+  Target: A4 Paper, High Fidelity, "Beamer/LaTeX" Style
 */
+
+@page {
+  size: A4 portrait;
+  margin: 15mm; 
+}
 
 /* --- Global Reset & Visibility --- */
 body, html, #root {
@@ -11,7 +15,7 @@ body, html, #root {
   margin: 0;
   padding: 0;
   background-color: white !important;
-  color: #000000 !important; /* Pure black for text sharpness */
+  color: #000000 !important;
   font-family: 'Inter', sans-serif;
   overflow: visible !important;
   -webkit-print-color-adjust: exact !important;
@@ -60,7 +64,7 @@ h1, h2, h3, .section-header {
 /* --- Typography & Content --- */
 p, li, span, div {
   line-height: 1.5;
-  font-size: 11pt; /* Optimal reading size for print */
+  font-size: 10.5pt; /* Standard academic font size */
 }
 
 /* Remove shadows for flat print look */
@@ -85,7 +89,7 @@ img, svg {
 /* Answer Zones - Ensure patterns (lines/grids) are visible */
 .print-rich-zone {
   background-color: white !important;
-  border: 1px solid #cbd5e1 !important; /* Slate-300 border */
+  border: 1px solid #d1d5db !important; /* Gray-300 border, more subtle */
   opacity: 1 !important;
   display: block;
   width: 100%;
@@ -99,12 +103,16 @@ img, svg {
   print-color-adjust: exact !important;
 }
 
-/* Badges (Definition, Propriété, etc.) */
+/* Clean Block Style - remove colored backgrounds for a LaTeX look */
+.block-container-print {
+  background: white !important;
+  border: 1px solid #e5e7eb !important; /* Gray-200 */
+}
+
+/* Badges (Definition, Propriété, etc.) - Keep color for semantics */
 [class*="bg-"] {
-  /* Force colored backgrounds on badges */
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
-  border: 1px solid rgba(0,0,0,0.1) !important; /* Add subtle border for contrast on white paper */
 }
 
 /* MathJax Specifics */

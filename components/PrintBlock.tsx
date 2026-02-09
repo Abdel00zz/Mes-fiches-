@@ -1,4 +1,3 @@
-
 import React, { memo } from 'react';
 import { BlockData, BLOCK_CONFIG, BlockImage } from '../types';
 import { MathContent } from './MathContent';
@@ -60,24 +59,19 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
   const bottomImages = data.images.filter(img => img.position === 'bottom');
   const floatImages = data.images.filter(img => img.position === 'float');
 
-  // Cleaned up classes - print.css handles opacity and shadows
+  // Cleaned up classes - print.css handles the container style
   return (
-    <div className={`
-      relative mb-4 rounded-lg avoid-break
-      bg-white/40
-      w-full
-    `}>
+    <div className="relative mb-4 rounded-lg avoid-break block-container-print w-full">
       {/* Header - Compact */}
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1.5 border-b border-dashed border-slate-300/30">
+      <div className="flex items-start gap-2 px-4 pt-3 pb-1.5">
         <div className={`
-          flex flex-col items-center justify-center shrink-0 rounded shadow-sm overflow-hidden select-none border border-slate-200 h-9 min-w-[2.75rem]
+          flex flex-col items-center justify-center shrink-0 rounded-md overflow-hidden select-none border border-slate-200/70 h-10 min-w-[2.75rem] mt-0.5
           ${config.badgeBg} ${config.badgeText}
-          print:border-0 print:shadow-none
         `}>
-             <span className="text-[7px] font-black uppercase tracking-widest opacity-80 leading-none mb-0.5">
-               {config.label.substring(0, 3)}.
+             <span className="text-[7px] font-black uppercase tracking-widest opacity-80 leading-none pt-1">
+               {config.label}
              </span>
-             <span className="text-base font-bold leading-none">
+             <span className="text-lg font-bold leading-none pb-0.5">
                {label}
              </span>
         </div>
@@ -85,13 +79,13 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
         <MathContent
           html={data.title}
           tagName="div"
-          className="font-serif font-bold text-slate-900 flex-grow text-[1.05rem] leading-tight"
+          className="font-serif font-bold text-slate-900 flex-grow text-[1.1rem] leading-tight pt-1"
           readOnly
         />
       </div>
 
       {/* Body - Compact Padding */}
-      <div className="px-4 pb-3 pt-2 flow-root text-slate-900 text-sm leading-relaxed">
+      <div className="px-4 pb-3 pt-2 flow-root text-slate-900 leading-relaxed">
         {topImages.length > 0 && <div className="flex flex-col w-full mb-3">{topImages.map(renderSingleImage)}</div>}
         {floatImages.map(renderSingleImage)}
 
