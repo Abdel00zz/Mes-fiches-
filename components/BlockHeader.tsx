@@ -4,7 +4,7 @@ import { BlockData, BLOCK_CONFIG, BlockImage } from '../types';
 import { MathContent } from './MathContent';
 import { 
   Trash2, PlusSquare, Image as ImageIcon, ArrowUp, ArrowDown,
-  Code2, Check, Copy, GripVertical
+  Code2, Check, Copy
 } from 'lucide-react';
 
 interface BlockHeaderProps {
@@ -18,7 +18,6 @@ interface BlockHeaderProps {
   onDelete: (id: string) => void;
   onMove: (id: string, direction: 'up' | 'down') => void;
   onDuplicate: (data: BlockData) => void;
-  onDragStart: (id: string) => void;
 }
 
 export const BlockHeader: React.FC<BlockHeaderProps> = ({
@@ -31,15 +30,13 @@ export const BlockHeader: React.FC<BlockHeaderProps> = ({
   onAddZone,
   onDelete,
   onMove,
-  onDuplicate,
-  onDragStart
+  onDuplicate
 }) => {
   const config = BLOCK_CONFIG[data.type];
 
   if (isSection) {
     return (
       <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 no-print bg-white/90 backdrop-blur p-1 rounded-lg shadow border border-slate-200">
-        <div className="drag-handle cursor-move p-1.5 text-slate-400" draggable onDragStart={(e) => { e.stopPropagation(); onDragStart(data.id); }}><GripVertical size={16} /></div>
         <button onClick={() => onMove(data.id, 'up')} className="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-slate-100" title="Monter"><ArrowUp size={16} /></button>
         <button onClick={() => onMove(data.id, 'down')} className="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-slate-100" title="Descendre"><ArrowDown size={16} /></button>
         <button onClick={() => onDuplicate(data)} className="p-1.5 text-slate-500 hover:text-blue-600 rounded-md hover:bg-slate-100" title="Dupliquer"><Copy size={16} /></button>

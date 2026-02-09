@@ -21,7 +21,6 @@ export const useSheetEditor = ({
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [modalState, setModalState] = useState<{ [key in ModalType]?: boolean }>({});
-  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   
   const lastSavedJson = useRef<string>(JSON.stringify(initialState));
 
@@ -165,44 +164,6 @@ export const useSheetEditor = ({
     });
   }, [sheet]);
 
-  const handleDragStart = useCallback((id: string) => {
-      setDraggedBlockId(id);
-  }, []);
-
-  const handleDragEnd = useCallback(() => {
-      setDraggedBlockId(null);
-  }, []);
-
-  const handleDropOnBlock = useCallback((dropTargetId: string) => {
-      if (!draggedBlockId || draggedBlockId === dropTargetId) {
-          setDraggedBlockId(null);
-          return;
-      }
-      modifyBlocks(blocks => {
-          const dragIndex = blocks.findIndex(b => b.id === draggedBlockId);
-          const dropIndex = blocks.findIndex(b => b.id === dropTargetId);
-          if (dragIndex === -1 || dropIndex === -1) return blocks;
-          
-          const newBlocks = [...blocks];
-          const [draggedItem] = newBlocks.splice(dragIndex, 1);
-          newBlocks.splice(dropIndex, 0, draggedItem);
-          return newBlocks;
-      });
-      setDraggedBlockId(null);
-  }, [draggedBlockId, sheet]);
-
-  const handlePrint = async () => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    const w = window as any;
-    if (w.MathJax?.typesetPromise) {
-      await w.MathJax.typesetPromise();
-    }
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-    window.print();
-  };
-
   const exportJSON = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sheet, null, 2));
     const a = document.createElement('a');
@@ -219,7 +180,6 @@ export const useSheetEditor = ({
     saveStatus,
     notification,
     modalState,
-    draggedBlockId,
 
     undo,
     addBlock,
@@ -228,13 +188,9 @@ export const useSheetEditor = ({
     duplicateBlock,
     deleteBlock,
     moveBlock,
-    handlePrint,
     exportJSON,
     handleEditorImport,
     closeModal,
     openModal,
-    handleDragStart,
-    handleDragEnd,
-    handleDropOnBlock,
   };
 };

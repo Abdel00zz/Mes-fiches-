@@ -20,10 +20,6 @@ interface BlockProps {
   onMove: (id: string, direction: 'up' | 'down') => void;
   onDuplicate: (data: BlockData) => void;
   onAddZone: (blockId: string) => void;
-  onDragStart: (id: string) => void;
-  onDrop: (id: string) => void;
-  isDragging: boolean;
-  isDragOver: boolean;
 }
 
 export const Block: React.FC<BlockProps> = memo(({ 
@@ -33,11 +29,7 @@ export const Block: React.FC<BlockProps> = memo(({
   onDelete, 
   onMove,
   onDuplicate,
-  onAddZone,
-  onDragStart,
-  onDrop,
-  isDragging,
-  isDragOver
+  onAddZone
 }) => {
   const [isImgDragOver, setIsImgDragOver] = useState(false);
   const [dragLocation, setDragLocation] = useState<'top' | 'bottom' | 'float' | null>(null);
@@ -47,12 +39,8 @@ export const Block: React.FC<BlockProps> = memo(({
   if (data.type === 'section') {
     return (
       <div 
-        className={`group relative mt-10 mb-8 page-break-avoid break-after-avoid transition-opacity ${isDragging ? 'opacity-30' : ''}`}
-        draggable
-        onDragStart={(e) => { e.stopPropagation(); onDragStart(data.id); }}
-        onDrop={(e) => { e.stopPropagation(); onDrop(data.id); }}
+        className={`group relative mt-10 mb-8 page-break-avoid break-after-avoid`}
       >
-        {isDragOver && <div className="absolute -top-2 left-0 w-full h-1.5 bg-blue-500 rounded-full z-10 shadow-lg"></div>}
         <div className="flex items-baseline gap-4 mb-4">
           <div className="flex items-center justify-center w-14 h-14 bg-slate-900 text-white text-3xl font-serif font-black rounded-sm shadow-relief transform group-hover:scale-105 transition-transform">
             {label}
@@ -72,7 +60,6 @@ export const Block: React.FC<BlockProps> = memo(({
             onMove={onMove}
             onDuplicate={onDuplicate}
             onDelete={onDelete}
-            onDragStart={onDragStart}
          />
       </div>
     );
@@ -112,15 +99,6 @@ export const Block: React.FC<BlockProps> = memo(({
     setIsImgDragOver(false);
     setDragLocation(null);
   };
-
-  const handleDrop = (e: React.DragEvent) => {
-    if (e.dataTransfer.files?.length > 0) {
-      handleImageDrop(e);
-    } else {
-      e.stopPropagation();
-      onDrop(data.id);
-    }
-  };
   
   const topImages = data.images.filter(img => img.position === 'top');
   const bottomImages = data.images.filter(img => img.position === 'bottom');
@@ -130,15 +108,11 @@ export const Block: React.FC<BlockProps> = memo(({
     <div 
       className={`block-container group relative mb-6 rounded-lg transition-all duration-300 page-break-avoid border bg-amber-50/60 border-amber-200/50
         ${isImgDragOver ? 'ring-4 ring-blue-400/50 border-blue-500' : 'shadow-sm hover:shadow-relief'}
-        ${isDragging ? 'opacity-30' : ''} print:shadow-none`}
+        print:shadow-none`}
       onDragOver={handleImageDragOver}
       onDragLeave={() => { setIsImgDragOver(false); setDragLocation(null); }}
-      onDrop={handleDrop}
-      draggable
-      onDragStart={(e) => { e.stopPropagation(); onDragStart(data.id); }}
+      onDrop={handleImageDrop}
     >
-      {isDragOver && <div className="absolute -top-2 left-0 w-full h-1.5 bg-blue-500 rounded-full z-20 shadow-lg"></div>}
-      
       {isImgDragOver && (
         <div className="absolute inset-0 z-50 rounded-lg overflow-hidden flex flex-col pointer-events-none bg-white/40 backdrop-blur-[1px]">
            <div className={`flex-1 transition-all duration-200 flex items-center justify-center border-b-2 border-dashed border-blue-300 ${dragLocation === 'top' ? 'bg-blue-100/80' : ''}`}>
@@ -154,9 +128,6 @@ export const Block: React.FC<BlockProps> = memo(({
       )}
 
       <div className="flex items-start gap-3 px-5 pt-5 pb-2">
-        <div className="drag-handle-zone -ml-4 pl-2 pr-1 py-4 text-slate-300 hover:text-slate-600 cursor-move opacity-0 group-hover:opacity-100 transition-opacity no-print" draggable onDragStart={(e) => { e.stopPropagation(); onDragStart(data.id); }}>
-          <GripVertical size={20} />
-        </div>
         <BlockHeader
             data={data}
             label={label}
@@ -167,7 +138,6 @@ export const Block: React.FC<BlockProps> = memo(({
             onDelete={onDelete}
             onMove={onMove}
             onDuplicate={onDuplicate}
-            onDragStart={onDragStart}
         />
       </div>
 

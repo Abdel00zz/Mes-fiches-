@@ -10,6 +10,7 @@ import { useSheetEditor } from '../hooks/useSheetEditor';
 import { ImportModal } from './ImportModal';
 import { EditorToolbar } from './EditorToolbar';
 import { QuickMenu } from './QuickMenu';
+import { PrintPreviewModal } from './PrintPreviewModal';
 
 interface EditorProps {
   initialState: SheetState;
@@ -24,7 +25,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
     saveStatus,
     notification,
     modalState,
-    draggedBlockId,
     undo,
     addBlock,
     insertBlock,
@@ -32,17 +32,12 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
     duplicateBlock,
     deleteBlock,
     moveBlock,
-    handlePrint,
-    exportJSON,
     handleEditorImport,
     openModal,
     closeModal,
-    handleDragStart,
-    handleDragEnd,
-    handleDropOnBlock
   } = useSheetEditor({ initialState, onBack, autoSaveInterval });
 
-  const [dragOverBlockId, setDragOverBlockId] = useState<string | null>(null);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   const blockRenderData = useMemo(() => {
     let sectionCounter = 0; 
@@ -61,13 +56,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
     });
   }, [sheet.blocks]);
   
-  const handleDragOver = useCallback((e: React.DragEvent, id: string) => {
-    e.preventDefault();
-    if (draggedBlockId && id !== draggedBlockId) {
-      setDragOverBlockId(id);
-    }
-  }, [draggedBlockId]);
-
   const addZoneToBlock = (blockId: string) => {
     const block = sheet.blocks.find(b => b.id === blockId);
     if(block) {
@@ -88,9 +76,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
           sheetTitle={sheet.title}
           saveStatus={saveStatus}
           onUndo={undo}
-          onImport={() => openModal('import')}
-          onExport={exportJSON}
-          onPrint={handlePrint}
+          onPrint={() => setIsPrintModalOpen(true)}
         />
         
         {notification && (
@@ -100,7 +86,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
           </div>
         )}
 
-        <div className="pt-24 px-4 sm:px-8 flex justify-center" onDragLeave={() => setDragOverBlockId(null)}>
+        <div className="pt-24 px-4 sm:px-8 flex justify-center">
           <div className="w-full max-w-[297mm] min-h-[210mm] bg-[#eef2f6] shadow-none rounded-xl p-[5mm] relative mb-20">
             <header className="mb-12 pb-6 text-center border-b border-slate-200/50">
               <MathContent html={sheet.title} tagName="h1" className="text-5xl font-serif font-black text-slate-900 mb-3 uppercase tracking-tighter" onChange={(html) => setSheet(s => ({...s, title: html}))} placeholder="TITRE DE LA FICHE" />
@@ -119,7 +105,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
               )}
 
               {blockRenderData.map((block, index) => (
-                <div key={block.id} onDragOver={(e) => handleDragOver(e, block.id)} onDragEnd={handleDragEnd}>
+                <div key={block.id}>
                   <Block
                     data={block}
                     index={index}
@@ -129,10 +115,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
                     onMove={moveBlock}
                     onDuplicate={duplicateBlock}
                     onAddZone={addZoneToBlock}
-                    onDragStart={handleDragStart}
-                    onDrop={handleDropOnBlock}
-                    isDragging={draggedBlockId === block.id}
-                    isDragOver={dragOverBlockId === block.id}
                   />
                   <BlockInserter onInsert={(type) => insertBlock(type, index + 1)} />
                 </div>
@@ -145,6 +127,12 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
       </div>
       
       <ImportModal isOpen={!!modalState.import} onClose={() => closeModal('import')} onImport={handleEditorImport} />
+      <PrintPreviewModal 
+        isOpen={isPrintModalOpen} 
+        onClose={() => setIsPrintModalOpen(false)}
+        sheet={sheet}
+        blocks={blockRenderData}
+      />
     </div>
   );
 };

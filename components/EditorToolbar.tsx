@@ -1,14 +1,12 @@
 
 import React from 'react';
-import { Printer, Download, Undo2, ArrowLeft, Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Printer, Undo2, ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface EditorToolbarProps {
     onBack: () => void;
     sheetTitle: string;
     saveStatus: 'saved' | 'saving' | 'unsaved';
     onUndo: () => void;
-    onImport: () => void;
-    onExport: () => void;
     onPrint: () => void;
 }
 
@@ -17,8 +15,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     sheetTitle,
     saveStatus,
     onUndo,
-    onImport,
-    onExport,
     onPrint
 }) => {
     const SaveStatusIndicator = () => {
@@ -47,15 +43,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
           </div>
 
           <div className="flex gap-2">
-            <button onClick={onImport} className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full hover:bg-slate-100 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors">
-                <Upload size={14} />
-                <span className="hidden sm:inline">Importer</span>
-            </button>
-            <button onClick={onExport} className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full hover:bg-slate-100 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors">
-                <Download size={14} />
-                <span className="hidden sm:inline">Exporter JSON</span>
-            </button>
-            <button onClick={onPrint} className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ml-2">
+            <button onClick={onPrint} className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95">
                 <Printer size={14} />
                 <span className="hidden sm:inline">Imprimer</span>
             </button>
