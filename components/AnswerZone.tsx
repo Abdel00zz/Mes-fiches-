@@ -53,8 +53,12 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
     const color = '#94a3b8'; 
     switch (zone.style) {
       case 'lines':
+        // This method is more robust for printing, ensuring uniform lines.
+        // It creates a single pattern with a line at the bottom and repeats it vertically.
         baseStyle = {
-          backgroundImage: `repeating-linear-gradient(to bottom, transparent 0mm, transparent 7.8mm, ${color} 7.8mm, ${color} 8mm)`,
+          backgroundImage: `linear-gradient(to bottom, transparent, transparent calc(100% - 0.2mm), ${color} calc(100% - 0.2mm), ${color} 100%)`,
+          backgroundSize: '100% 8mm',
+          backgroundRepeat: 'repeat-y',
           backgroundAttachment: 'local',
           opacity: readOnly ? 0.5 : 0.42
         };

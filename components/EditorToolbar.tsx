@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Printer, Download, Undo2, ArrowLeft, Upload } from 'lucide-react';
+import { Printer, Download, Undo2, ArrowLeft, Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface EditorToolbarProps {
     onBack: () => void;
@@ -21,8 +21,21 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     onExport,
     onPrint
 }) => {
+    const SaveStatusIndicator = () => {
+        switch(saveStatus) {
+            case 'saving':
+                return <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500"><Loader2 size={14} className="animate-spin" /><span>Sauvegarde...</span></div>;
+            case 'saved':
+                return <div className="flex items-center gap-1.5 text-xs font-medium text-green-600"><CheckCircle size={14} /><span>Enregistré</span></div>;
+            case 'unsaved':
+                return <div className="flex items-center gap-1.5 text-xs font-medium text-amber-600"><AlertCircle size={14} /><span>Modifications non enregistrées</span></div>;
+            default:
+                return null;
+        }
+    };
+
     return (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 h-14 bg-white/80 backdrop-blur-xl border border-white/40 z-50 flex items-center justify-between px-4 sm:px-6 shadow-float rounded-full w-[95%] max-w-5xl transition-all">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 h-16 bg-white/80 backdrop-blur-2xl border border-white/40 z-50 flex items-center justify-between px-4 sm:px-6 shadow-float rounded-2xl w-[95%] max-w-6xl transition-all duration-300">
           <div className="flex items-center gap-3">
             <button onClick={onBack} className="p-2 hover:bg-slate-200/50 rounded-full text-slate-600 transition-colors mr-1">
                 <ArrowLeft size={20} />
@@ -30,11 +43,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             <span className="font-semibold text-slate-800 hidden sm:inline tracking-tight line-clamp-1 max-w-[150px]">{sheetTitle || "Nouvelle Fiche"}</span>
             <div className="h-5 w-px bg-slate-300 mx-2 opacity-50"></div>
             <button onClick={onUndo} className="p-2 hover:bg-slate-200/50 rounded-full text-slate-600 transition-colors" title="Annuler"><Undo2 size={18} /></button>
-            <div className={`text-xs font-mono ml-2 flex items-center gap-1 transition-colors duration-300 ${saveStatus === 'unsaved' ? 'text-amber-500 font-bold' : 'text-slate-400'}`}>
-                 {saveStatus === 'saving' && 'Sauvegarde...'}
-                 {saveStatus === 'saved' && 'Sauvegardé'}
-                 {saveStatus === 'unsaved' && 'Non enregistré...'}
-            </div>
+            <SaveStatusIndicator />
           </div>
 
           <div className="flex gap-2">

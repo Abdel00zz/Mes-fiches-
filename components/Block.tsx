@@ -47,13 +47,13 @@ export const Block: React.FC<BlockProps> = memo(({
   if (data.type === 'section') {
     return (
       <div 
-        className={`group relative mt-10 mb-8 pb-4 border-b-2 border-slate-900 page-break-avoid break-after-avoid transition-opacity ${isDragging ? 'opacity-30' : ''}`}
+        className={`group relative mt-10 mb-8 page-break-avoid break-after-avoid transition-opacity ${isDragging ? 'opacity-30' : ''}`}
         draggable
         onDragStart={(e) => { e.stopPropagation(); onDragStart(data.id); }}
         onDrop={(e) => { e.stopPropagation(); onDrop(data.id); }}
       >
         {isDragOver && <div className="absolute -top-2 left-0 w-full h-1.5 bg-blue-500 rounded-full z-10 shadow-lg"></div>}
-        <div className="flex items-baseline gap-4">
+        <div className="flex items-baseline gap-4 mb-4">
           <div className="flex items-center justify-center w-14 h-14 bg-slate-900 text-white text-3xl font-serif font-black rounded-sm shadow-relief transform group-hover:scale-105 transition-transform">
             {label}
           </div>
@@ -65,6 +65,7 @@ export const Block: React.FC<BlockProps> = memo(({
             placeholder="Titre de la partie..."
           />
         </div>
+        <div className="h-px bg-gradient-to-r from-slate-300 via-slate-200 to-transparent"></div>
          <BlockHeader 
             isSection={true}
             data={data}
