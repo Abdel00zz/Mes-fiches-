@@ -182,6 +182,50 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
     });
   }, [sheet.blocks]);
 
+  const handlePrint = useCallback(async () => {
+    // Ensure pending contentEditable updates are committed before print snapshot.
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
+    const w = window as any;
+    const mathNodes = Array.from(document.querySelectorAll('.math-content'));
+
+    if (w.MathJax?.typesetPromise) {
+      try {
+        await w.MathJax.typesetPromise(mathNodes);
+      } catch (err) {
+        console.debug('MathJax pre-print typeset failed', err);
+      }
+    }
+
+    // Wait for fonts and images to be decoded for better print fidelity.
+    if (document.fonts?.ready) {
+      try {
+        await document.fonts.ready;
+      } catch (err) {
+        console.debug('Font readiness check failed', err);
+      }
+    }
+
+    const images = Array.from(document.querySelectorAll('img'));
+    await Promise.all(
+      images.map(async (img) => {
+        if ('decode' in img) {
+          try {
+            await img.decode();
+          } catch {
+            // Ignore decode issues for external/partially loaded assets.
+          }
+        }
+      })
+    );
+
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(true)));
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    window.print();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f0f4f8] text-slate-900">
       <div className="print-only hidden">
@@ -210,7 +254,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
                 <Download size={14} />
                 <span className="hidden sm:inline">Exporter JSON</span>
             </button>
-            <button onClick={() => window.print()} className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ml-2">
+            <button onClick={handlePrint} className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ml-2">
                 <Printer size={14} />
                 <span className="hidden sm:inline">Imprimer</span>
             </button>

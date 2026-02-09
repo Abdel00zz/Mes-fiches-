@@ -54,24 +54,24 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
     switch (zone.style) {
       case 'lines':
         baseStyle = {
-          backgroundImage: `repeating-linear-gradient(transparent, transparent 31px, ${color} 31px, ${color} 32px)`,
+          backgroundImage: `repeating-linear-gradient(to bottom, transparent, transparent 7.8mm, ${color} 7.8mm, ${color} 8mm)`,
           backgroundAttachment: 'local',
-          lineHeight: '32px',
-          opacity: 0.35
+          lineHeight: '8mm',
+          opacity: readOnly ? 0.5 : 0.42
         };
         break;
       case 'grid':
         baseStyle = {
-          backgroundImage: `linear-gradient(${color} 1px, transparent 1px), linear-gradient(90deg, ${color} 1px, transparent 1px)`,
-          backgroundSize: '20px 20px',
-          opacity: 0.25
+          backgroundImage: `linear-gradient(${color} 0.35mm, transparent 0.35mm), linear-gradient(90deg, ${color} 0.35mm, transparent 0.35mm)`,
+          backgroundSize: '5mm 5mm',
+          opacity: readOnly ? 0.42 : 0.35
         };
         break;
       case 'dots':
         baseStyle = {
-          backgroundImage: `radial-gradient(${color} 1.5px, transparent 1.5px)`,
-          backgroundSize: '20px 20px',
-          opacity: 0.5
+          backgroundImage: `radial-gradient(${color} 0.45mm, transparent 0.45mm)`,
+          backgroundSize: '5mm 5mm',
+          opacity: readOnly ? 0.62 : 0.55
         };
         break;
       default:
@@ -107,20 +107,20 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
     }
   };
 
-  const marginClass = readOnly ? 'my-1' : 'my-4';
+  const marginClass = readOnly ? 'my-1 print:my-0.5' : 'my-4';
 
   return (
-    <div className={`group relative w-full transition-all break-inside-avoid ${marginClass}`}>
+    <div className={`print-zone group relative w-full transition-all break-inside-avoid ${marginClass}`}>
       {/* Zone Visual */}
       <div 
-        className={`w-full border rounded-sm bg-white transition-all overflow-hidden relative ${isDragOver && !readOnly ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-300'}`}
+        className={`w-full border rounded-sm bg-white transition-all overflow-hidden relative print-rich-zone ${isDragOver && !readOnly ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-300'}`}
         style={{ height: `${zone.height}mm` }}
         onDragOver={(e) => { if(!readOnly) { e.preventDefault(); e.stopPropagation(); setIsDragOver(true); } }}
         onDragLeave={(e) => { if(!readOnly) { e.preventDefault(); e.stopPropagation(); setIsDragOver(false); } }}
         onDrop={handleDrop}
       >
         <div 
-          className="absolute inset-0 z-0 pointer-events-none print:opacity-100" 
+          className="print-zone-pattern absolute inset-0 z-0 pointer-events-none print:opacity-100" 
           style={getBackgroundStyle()} 
         />
         {zone.backgroundImage && (
@@ -128,7 +128,7 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
             <img 
               src={zone.backgroundImage} 
               alt="Zone background" 
-              className="max-w-full max-h-full object-contain"
+              className="print-zone-image max-w-full max-h-full object-contain"
               style={{ opacity: zone.backgroundOpacity ?? 0.8 }}
             />
           </div>

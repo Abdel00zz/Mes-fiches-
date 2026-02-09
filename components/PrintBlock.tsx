@@ -16,7 +16,7 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
   // --- Section Rendering ---
   if (data.type === 'section') {
     return (
-      <div className="relative mt-4 mb-6 pb-2 border-b-2 border-slate-900 avoid-break w-full">
+      <div className="print-section relative mt-4 mb-6 pb-2 border-b-2 border-slate-900 avoid-break w-full">
         <div className="flex items-baseline gap-3">
           <div className="flex items-center justify-center w-12 h-12 bg-slate-900 text-white text-2xl font-serif font-black rounded-sm print:shadow-none">
             {label}
@@ -34,7 +34,7 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
 
   const renderSingleImage = (img: BlockImage) => {
     const containerStyle: React.CSSProperties = { width: `${img.width}%`, marginBottom: '0.5rem', position: 'relative', zIndex: 20 };
-    let containerClass = "relative ";
+    let containerClass = "relative avoid-break print-image-container ";
     
     if (img.position === 'float') {
       containerClass += img.align === 'left' ? "float-left mr-4 mb-2 clear-left" : "float-right ml-4 mb-2 clear-right";
@@ -63,15 +63,13 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
   // PRINT: Using shadow-engraved instead of borders for "cadre ordure gravé naturellement" look
   return (
     <div className={`
-      relative mb-4 rounded-lg avoid-break
+      print-block relative mb-4 rounded-lg avoid-break
       bg-white/40
-      print:shadow-engraved
-      print:bg-opacity-50
-      print:border-none
+      print:shadow-none
       w-full
     `}>
       {/* Header - Compact */}
-      <div className="flex items-center gap-2 px-4 pt-3 pb-1.5 border-b border-dashed border-slate-300/30">
+      <div className="print-block-header flex items-center gap-2 px-4 pt-3 pb-1.5 border-b border-dashed border-slate-300/40">
         <div className={`
           flex flex-col items-center justify-center shrink-0 rounded shadow-sm overflow-hidden select-none border border-slate-200 h-9 min-w-[2.75rem]
           ${config.badgeBg} ${config.badgeText}
@@ -94,7 +92,7 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
       </div>
 
       {/* Body - Compact Padding */}
-      <div className="px-4 pb-3 pt-2 flow-root text-slate-900 text-sm leading-relaxed">
+      <div className="px-4 pb-3 pt-2 flow-root text-slate-900 text-sm leading-relaxed print:text-[12px]">
         {topImages.length > 0 && <div className="flex flex-col w-full mb-3">{topImages.map(renderSingleImage)}</div>}
         {floatImages.map(renderSingleImage)}
 
