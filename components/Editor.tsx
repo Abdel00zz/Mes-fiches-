@@ -4,7 +4,7 @@ import { Block } from './Block';
 import { PrintLayout } from './PrintLayout';
 import { MathContent } from './MathContent';
 import { BlockInserter } from './BlockInserter';
-import { Printer, Download, Plus, Undo2, LayoutTemplate, ArrowLeft, HelpCircle, Upload, BookOpen, CheckCircle2, AlertTriangle, X, LoaderCircle } from 'lucide-react';
+import { Printer, Download, Plus, Undo2, LayoutTemplate, ArrowLeft, HelpCircle, Upload, BookOpen, CheckCircle2, AlertTriangle, X, Loader2 } from 'lucide-react';
 import { saveSheet, importSheetFromJSON } from '../utils/storage';
 import { HelpModal } from './HelpModal';
 import { JsonEditorModal } from './JsonEditorModal';
@@ -360,7 +360,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
             </button>
 
             <button onClick={handlePrint} disabled={isPrinting} className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ml-2 disabled:bg-slate-500 disabled:cursor-wait">
-                {isPrinting ? <LoaderCircle size={14} className="animate-spin" /> : <Printer size={14} />}
+                {isPrinting ? <Loader2 size={14} className="animate-spin" /> : <Printer size={14} />}
                 <span className="hidden sm:inline">{isPrinting ? 'Préparation...' : 'Imprimer'}</span>
             </button>
           </div>
