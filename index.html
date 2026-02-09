@@ -65,15 +65,15 @@
         outline: none;
       }
 
-      /* Print Optimization - Landscape A4 & High Fidelity */
+      /* Print Optimization - Standard Document Flow */
       @media print {
         @page {
-          size: landscape;
-          margin: 8mm; /* Marges réduites pour maximiser l'espace */
+          size: auto; /* Let user choose Portrait/Landscape */
+          margin: 15mm; /* Standard margins */
         }
         
         html, body {
-          height: 100%;
+          height: auto;
           width: 100%;
           background-color: white !important;
           -webkit-print-color-adjust: exact !important;
@@ -100,20 +100,15 @@
           height: auto !important;
         }
 
-        /* Flow Control */
+        /* Standard Layout - Single Column */
         .print-flow {
            display: block;
            width: 100%;
-           columns: 2; /* Optionnel : permet 2 colonnes si l'écran est large, sinon le layout standard gère */
-           column-gap: 10mm;
         }
 
         .avoid-break {
           break-inside: avoid;
           page-break-inside: avoid;
-          display: inline-block; /* Helps preventing split inside blocks */
-          width: 100%;
-          margin-bottom: 5mm;
         }
         
         /* High Quality Image Rendering */
