@@ -5,8 +5,9 @@ import { Block } from './Block';
 import { PrintLayout } from './PrintLayout';
 import { MathContent } from './MathContent';
 import { BlockInserter } from './BlockInserter';
-import { Printer, Download, Plus, Undo2, LayoutTemplate, ArrowLeft } from 'lucide-react';
+import { Printer, Download, Plus, Undo2, LayoutTemplate, ArrowLeft, HelpCircle } from 'lucide-react';
 import { saveSheet } from '../utils/storage';
+import { HelpModal } from './HelpModal';
 
 interface EditorProps {
   initialState: SheetState;
@@ -18,6 +19,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
   const [sheet, setSheet] = useState<SheetState>(initialState);
   const [history, setHistory] = useState<SheetState[]>([initialState]);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   
   // Ref to track the last saved stringified version to avoid useless writes
   const lastSavedJson = useRef<string>(JSON.stringify(initialState));
@@ -150,6 +152,34 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
     });
   }, []);
 
+  // --- Optimized Print Handler ---
+  // Blurs active elements to remove carets/focus rings
+  // Typesets MathJax
+  // Waits for a frame to ensure rendering
+  const handlePrint = async () => {
+      // 1. Blur to remove focus styles
+      if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+      }
+
+      // 2. Ensure MathJax is fresh
+      const w = window as any;
+      if (w.MathJax) {
+          try {
+              await w.MathJax.typesetPromise();
+          } catch(e) {
+              console.warn("MathJax typeset failed before print", e);
+          }
+      }
+
+      // 3. Wait for UI update then print
+      requestAnimationFrame(() => {
+          setTimeout(() => {
+              window.print();
+          }, 150); // Small buffer for DOM paint
+      });
+  };
+
   const exportJSON = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sheet, null, 2));
     const downloadAnchorNode = document.createElement('a');
@@ -206,11 +236,16 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
           </div>
 
           <div className="flex gap-2">
+            <button onClick={() => setIsHelpOpen(true)} className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-blue-50 text-blue-600 transition-colors mr-1" title="Aide IA / Format JSON">
+                <HelpCircle size={18} />
+                <span className="hidden sm:inline font-bold text-xs uppercase tracking-wider">Guide</span>
+            </button>
+
             <button onClick={exportJSON} className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full hover:bg-slate-100 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors">
                 <Download size={14} />
                 <span className="hidden sm:inline">Exporter JSON</span>
             </button>
-            <button onClick={() => window.print()} className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ml-2">
+            <button onClick={handlePrint} className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ml-2">
                 <Printer size={14} />
                 <span className="hidden sm:inline">Imprimer</span>
             </button>
@@ -296,6 +331,12 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
               <Plus size={28} />
           </button>
         </div>
+
+        {/* Help Modal */}
+        <HelpModal 
+            isOpen={isHelpOpen} 
+            onClose={() => setIsHelpOpen(false)} 
+        />
       </div>
     </div>
   );

@@ -50,34 +50,47 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
 
   const getBackgroundStyle = (): React.CSSProperties => {
     let baseStyle: React.CSSProperties = {};
-    const color = '#94a3b8'; 
+    const color = '#94a3b8'; // Slate-400 equivalent
+    
+    // Units converted to MM for consistent print physical size
     switch (zone.style) {
       case 'lines':
+        // Standard Seyes/Ruled line height 8mm.
+        // We use backgroundSize to force a strict 8mm repeat pattern.
+        // This prevents floating point errors seen with repeating-linear-gradient.
         baseStyle = {
-          backgroundImage: `repeating-linear-gradient(transparent, transparent 31px, ${color} 31px, ${color} 32px)`,
+          backgroundImage: `linear-gradient(to bottom, transparent 0mm, transparent 7.8mm, ${color} 7.8mm, ${color} 8mm)`,
+          backgroundSize: '100% 8mm',
+          backgroundRepeat: 'repeat-y',
           backgroundAttachment: 'local',
-          lineHeight: '32px',
-          opacity: 0.35
+          lineHeight: '8mm',
+          opacity: 0.4
         };
         break;
       case 'grid':
+        // 5x5mm grid
         baseStyle = {
-          backgroundImage: `linear-gradient(${color} 1px, transparent 1px), linear-gradient(90deg, ${color} 1px, transparent 1px)`,
-          backgroundSize: '20px 20px',
-          opacity: 0.25
+          backgroundImage: `linear-gradient(${color} 0.2mm, transparent 0.2mm), linear-gradient(90deg, ${color} 0.2mm, transparent 0.2mm)`,
+          backgroundSize: '5mm 5mm',
+          opacity: 0.3
         };
         break;
       case 'dots':
+        // 5mm spaced dots
         baseStyle = {
-          backgroundImage: `radial-gradient(${color} 1.5px, transparent 1.5px)`,
-          backgroundSize: '20px 20px',
+          backgroundImage: `radial-gradient(${color} 0.4mm, transparent 0.4mm)`,
+          backgroundSize: '5mm 5mm',
           opacity: 0.5
         };
         break;
       default:
         baseStyle = {};
     }
-    return { ...baseStyle, printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' } as React.CSSProperties;
+    return { 
+        ...baseStyle, 
+        printColorAdjust: 'exact', 
+        WebkitPrintColorAdjust: 'exact' 
+    } as React.CSSProperties;
   };
 
   const cycleStyle = () => {
@@ -111,9 +124,13 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
 
   return (
     <div className={`group relative w-full transition-all break-inside-avoid ${marginClass}`}>
-      {/* Zone Visual */}
+      {/* Zone Visual with Print Rich Class */}
       <div 
-        className={`w-full border rounded-sm bg-white transition-all overflow-hidden relative ${isDragOver && !readOnly ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-300'}`}
+        className={`
+            w-full border rounded-sm bg-white transition-all overflow-hidden relative 
+            print-rich-zone
+            ${isDragOver && !readOnly ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-300'}
+        `}
         style={{ height: `${zone.height}mm` }}
         onDragOver={(e) => { if(!readOnly) { e.preventDefault(); e.stopPropagation(); setIsDragOver(true); } }}
         onDragLeave={(e) => { if(!readOnly) { e.preventDefault(); e.stopPropagation(); setIsDragOver(false); } }}
@@ -128,7 +145,7 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
             <img 
               src={zone.backgroundImage} 
               alt="Zone background" 
-              className="max-w-full max-h-full object-contain"
+              className="max-w-full max-h-full object-contain print-hq-image"
               style={{ opacity: zone.backgroundOpacity ?? 0.8 }}
             />
           </div>
