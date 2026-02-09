@@ -26,13 +26,13 @@ const sanitizeBlock = (block: any): BlockData => {
     type: type as BlockType,
     title: block.title || '',
     content: block.content || block.body || '', // Support legacy "body"
-    zones: Array.isArray(block.zones) ? block.zones : (Array.isArray(block.answerZones) ? block.answerZones : []),
-    images: Array.isArray(block.images) ? block.images : []
+    zones: (Array.isArray(block.zones) ? block.zones : (Array.isArray(block.answerZones) ? block.answerZones : [])).map(z => ({...z, id: z.id || Math.random().toString(36).substr(2, 9)})),
+    images: (Array.isArray(block.images) ? block.images : []).map(i => ({...i, id: i.id || Math.random().toString(36).substr(2, 9)}))
   };
 };
 
 // Validation et réparation de la fiche complète
-const sanitizeSheet = (data: any, forceId?: string): SheetState => {
+export const sanitizeSheet = (data: any, forceId?: string): SheetState => {
   return {
     id: forceId || data.id || Date.now().toString(36) + Math.random().toString(36).substr(2),
     title: data.title || "Nouvelle Fiche Importée",

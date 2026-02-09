@@ -5,6 +5,12 @@ import { Dashboard } from './components/Dashboard';
 import { Editor } from './components/Editor';
 import { loadSheet, saveSheet } from './utils/storage';
 
+// Hardcoded initial sheets to avoid fetching manifest
+const initialSheets = [
+  { url: '/exponentials.json', id: 'demo_exponentials' },
+  { url: '/derivability.json', id: 'demo_derivability' }
+];
+
 const EMPTY_STATE: SheetState = {
   id: '',
   title: "Nouvelle Fiche",
@@ -23,25 +29,12 @@ export default function App() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [config, setConfig] = useState<AppConfig>({ autoSaveInterval: 1000 });
 
-  // Infrastructure: Seeding LocalStorage from Manifest & Config Loading
+  // Seeding LocalStorage from a hardcoded list
   useEffect(() => {
     const initializeApp = async () => {
         try {
-          const response = await fetch('/manifest.json');
-          if (!response.ok) throw new Error("Manifest failed to load");
-          
-          const manifest = await response.json();
-          
-          // 1. Load Config
-          if (manifest.config) {
-             setConfig({
-                 autoSaveInterval: manifest.config.autoSaveInterval || 1000
-             });
-          }
-
-          // 2. Seed Resources
-          const resources = manifest.resources?.initialSheets || [];
-          for (const resource of resources) {
+          // 1. Seed Resources
+          for (const resource of initialSheets) {
              const existing = loadSheet(resource.id);
              if (!existing) {
                  try {
@@ -54,7 +47,7 @@ export default function App() {
              }
           }
         } catch (error) {
-          console.error("Infrastructure Error: Could not scan app engine.", error);
+          console.error("Infrastructure Error: Could not seed initial data.", error);
         } finally {
           setIsInitializing(false);
         }

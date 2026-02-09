@@ -1,28 +1,27 @@
-import { useState, useEffect, useCallback, useRef, RefObject } from 'react';
-import { SheetState, BlockData, BlockType } from '../types';
-import { saveSheet } from '../utils/storage';
 
-type ModalType = 'help' | 'json' | 'template';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { SheetState, BlockData, BlockType } from '../types';
+import { saveSheet, sanitizeSheet } from '../utils/storage';
+
+type ModalType = 'help' | 'json' | 'template' | 'import';
 
 interface UseSheetEditorProps {
   initialState: SheetState;
   onBack: () => void;
   autoSaveInterval?: number;
-  printContainerRef: RefObject<HTMLDivElement>;
 }
 
 export const useSheetEditor = ({
   initialState,
   onBack,
   autoSaveInterval = 1000,
-  printContainerRef
 }: UseSheetEditorProps) => {
   const [sheet, setSheet] = useState<SheetState>(initialState);
   const [history, setHistory] = useState<SheetState[]>([initialState]);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
-  const [isPrinting, setIsPrinting] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [modalState, setModalState] = useState<{ [key in ModalType]?: boolean }>({});
+  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   
   const lastSavedJson = useRef<string>(JSON.stringify(initialState));
 
@@ -70,32 +69,30 @@ export const useSheetEditor = ({
     setSheet(newState);
   };
 
-  const handleImportJson = (jsonContent: string) => {
+  const handleEditorImport = (jsonContent: string, mode: 'replace' | 'append') => {
     try {
-      const newId = sheet.id || Date.now().toString();
       const parsed = JSON.parse(jsonContent);
-      const newSheetState = { ...parsed, id: newId, updatedAt: Date.now() };
-      setSheet(newSheetState);
-      setHistory([newSheetState]);
-      showNotification("Fiche importée avec succès !");
-      closeModal('json');
+      const sanitized = sanitizeSheet(parsed);
+      
+      if (mode === 'replace') {
+        const newSheetState = { ...sheet, blocks: sanitized.blocks, updatedAt: Date.now() };
+        updateSheetWithHistory(newSheetState);
+        showNotification("Fiche remplacée avec succès !");
+      } else { // append
+        const newBlocks = sanitized.blocks.map(b => ({
+          ...b,
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          zones: b.zones.map(z => ({ ...z, id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}` })),
+          images: b.images.map(i => ({ ...i, id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}` }))
+        }));
+        const newSheetState = { ...sheet, blocks: [...sheet.blocks, ...newBlocks], updatedAt: Date.now() };
+        updateSheetWithHistory(newSheetState);
+        showNotification(`${newBlocks.length} blocs ajoutés !`);
+      }
+      closeModal('import');
     } catch(e) {
       console.error(e);
       showNotification("JSON invalide ou corrompu", "error");
-    }
-  };
-
-  const handleLoadTemplate = async (url: string) => {
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      const newSheetState = { ...data, id: sheet.id || Date.now().toString(), updatedAt: Date.now() };
-      setSheet(newSheetState);
-      setHistory([newSheetState]);
-      showNotification("Modèle chargé !");
-      closeModal('template');
-    } catch(e) {
-      showNotification("Erreur lors du chargement du modèle", "error");
     }
   };
 
@@ -108,11 +105,8 @@ export const useSheetEditor = ({
   };
   
   const modifyBlocks = (blockModifier: (blocks: BlockData[]) => BlockData[]) => {
-      setSheet(current => {
-          const newState = { ...current, blocks: blockModifier(current.blocks) };
-          setHistory(prev => [...prev.slice(-10), newState]);
-          return newState;
-      });
+      const newState = { ...sheet, blocks: blockModifier(sheet.blocks) };
+      updateSheetWithHistory(newState);
   };
 
   const addBlock = useCallback((type: BlockType) => {
@@ -120,7 +114,7 @@ export const useSheetEditor = ({
       const newBlock: BlockData = { id: Date.now().toString(), type, title: '', content: '', zones: [], images: [] };
       return [...blocks, newBlock];
     });
-  }, []);
+  }, [sheet]);
 
   const insertBlock = useCallback((type: BlockType, index: number) => {
     modifyBlocks(blocks => {
@@ -129,9 +123,8 @@ export const useSheetEditor = ({
       newBlocks.splice(index, 0, newBlock);
       return newBlocks;
     });
-  }, []);
+  }, [sheet]);
   
-  // No history for block updates to avoid sluggishness on typing
   const updateBlock = useCallback((id: string, updates: Partial<BlockData>) => {
     setSheet(current => ({
       ...current,
@@ -152,14 +145,15 @@ export const useSheetEditor = ({
         newBlocks.splice(index + 1, 0, newBlock);
         return newBlocks;
     });
-  }, []);
+  }, [sheet]);
 
   const deleteBlock = useCallback((id: string) => {
     if (confirm('Supprimer ce bloc ?')) {
       modifyBlocks(blocks => blocks.filter(b => b.id !== id));
     }
-  }, []);
+  }, [sheet]);
 
+  // For up/down buttons
   const moveBlock = useCallback((id: string, direction: 'up' | 'down') => {
     modifyBlocks(blocks => {
       const index = blocks.findIndex(b => b.id === id);
@@ -169,65 +163,44 @@ export const useSheetEditor = ({
       [newBlocks[index], newBlocks[targetIndex]] = [newBlocks[targetIndex], newBlocks[index]];
       return newBlocks;
     });
+  }, [sheet]);
+
+  const handleDragStart = useCallback((id: string) => {
+      setDraggedBlockId(id);
   }, []);
 
+  const handleDragEnd = useCallback(() => {
+      setDraggedBlockId(null);
+  }, []);
+
+  const handleDropOnBlock = useCallback((dropTargetId: string) => {
+      if (!draggedBlockId || draggedBlockId === dropTargetId) {
+          setDraggedBlockId(null);
+          return;
+      }
+      modifyBlocks(blocks => {
+          const dragIndex = blocks.findIndex(b => b.id === draggedBlockId);
+          const dropIndex = blocks.findIndex(b => b.id === dropTargetId);
+          if (dragIndex === -1 || dropIndex === -1) return blocks;
+          
+          const newBlocks = [...blocks];
+          const [draggedItem] = newBlocks.splice(dragIndex, 1);
+          newBlocks.splice(dropIndex, 0, draggedItem);
+          return newBlocks;
+      });
+      setDraggedBlockId(null);
+  }, [draggedBlockId, sheet]);
+
   const handlePrint = async () => {
-      if (isPrinting) return;
-      setIsPrinting(true);
-      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-
-      const w = window as any;
-      if (w.MathJax) await w.MathJax.typesetPromise();
-      
-      const printCss = await fetch('/print.css').then(res => res.text());
-      const printHtml = printContainerRef.current?.innerHTML;
-
-      if (!printHtml) {
-          showNotification("Erreur lors de la génération de l'aperçu.", "error");
-          setIsPrinting(false);
-          return;
-      }
-      
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-          showNotification("Veuillez autoriser les pop-ups pour imprimer.", "error");
-          setIsPrinting(false);
-          return;
-      }
-      
-      printWindow.document.write(`<!DOCTYPE html>...`); // Full HTML structure as before
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="fr">
-          <head>
-            <meta charset="UTF-8" />
-            <title>${sheet.title || 'Fiche de révision'}</title>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
-            <script>
-              window.MathJax = {
-                tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']], processEscapes: true },
-                options: { processHtmlClass: 'math-content' },
-                startup: { typeset: false }
-              };
-            </script>
-            <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-            <style>${printCss}</style>
-          </head>
-          <body>${printHtml}</body>
-        </html>
-      `);
-      printWindow.document.close();
-
-      setTimeout(() => {
-          const pwin = printWindow as any;
-          (pwin.MathJax?.typesetPromise() ?? Promise.resolve())
-            .catch((err: any) => console.error("MathJax failed in print window:", err))
-            .finally(() => {
-                pwin.print();
-                pwin.close();
-                setIsPrinting(false);
-            });
-      }, 1000);
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    const w = window as any;
+    if (w.MathJax?.typesetPromise) {
+      await w.MathJax.typesetPromise();
+    }
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    window.print();
   };
 
   const exportJSON = () => {
@@ -236,16 +209,17 @@ export const useSheetEditor = ({
     a.href = dataStr;
     a.download = (sheet.title || "fiche").replace(/[^a-z0-9]/gi, '_').toLowerCase() + ".json";
     a.click();
+    a.remove();
   };
 
   return {
     sheet,
-    setSheet, // Exposed for direct updates like title/subtitle
+    setSheet,
     history,
     saveStatus,
-    isPrinting,
     notification,
     modalState,
+    draggedBlockId,
 
     undo,
     addBlock,
@@ -256,9 +230,11 @@ export const useSheetEditor = ({
     moveBlock,
     handlePrint,
     exportJSON,
-    handleImportJson,
-    handleLoadTemplate,
+    handleEditorImport,
     closeModal,
     openModal,
+    handleDragStart,
+    handleDragEnd,
+    handleDropOnBlock,
   };
 };
