@@ -1,0 +1,129 @@
+
+/* 
+  FicheBuilder Pro - Optimized Print Stylesheet 
+  Target: A4 Paper, High Fidelity, Clean Layout
+*/
+
+@page {
+  size: auto;   /* Auto allows user to select Portrait/Landscape */
+  margin: 12mm; /* Slightly reduced margins to maximize content area */
+}
+
+/* --- Global Reset & Visibility --- */
+body, html, #root {
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  background-color: white !important;
+  color: #000000 !important; /* Pure black for text sharpness */
+  font-family: 'Inter', sans-serif;
+  overflow: visible !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Hide all screen-only elements */
+.no-print, 
+.screen-only,
+.fixed, 
+button, 
+input, 
+textarea,
+[role="tooltip"],
+.group\/inserter { 
+  display: none !important; 
+}
+
+/* Show print-only elements */
+.print-only {
+  display: block !important;
+}
+
+/* --- Layout & Flow --- */
+.print-flow {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Prevent blocks from being cut in half */
+.avoid-break, 
+.block-container,
+.print-rich-zone {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+  position: relative;
+}
+
+/* Ensure titles stay with their content */
+h1, h2, h3, .section-header {
+  break-after: avoid !important;
+  page-break-after: avoid !important;
+}
+
+/* --- Typography & Content --- */
+p, li, span, div {
+  line-height: 1.5;
+  font-size: 11pt; /* Optimal reading size for print */
+}
+
+/* Remove shadows for flat print look */
+* {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* --- Graphics & Images --- */
+img, svg {
+  max-width: 100%;
+  break-inside: avoid;
+}
+
+.print-hq-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality; /* Better scaling for printed images */
+}
+
+/* --- Specific Components --- */
+
+/* Answer Zones - Ensure patterns (lines/grids) are visible */
+.print-rich-zone {
+  background-color: white !important;
+  border: 1px solid #cbd5e1 !important; /* Slate-300 border */
+  opacity: 1 !important;
+  display: block;
+  width: 100%;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.print-rich-zone div {
+  /* Force background patterns to print */
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Badges (Definition, Propriété, etc.) */
+[class*="bg-"] {
+  /* Force colored backgrounds on badges */
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  border: 1px solid rgba(0,0,0,0.1) !important; /* Add subtle border for contrast on white paper */
+}
+
+/* MathJax Specifics */
+mjx-container {
+  overflow: visible !important;
+  text-align: left !important;
+}
+
+.math-content {
+  color: #000 !important;
+}
+
+/* Links */
+a {
+  text-decoration: none !important;
+  color: #000 !important;
+}

@@ -55,6 +55,10 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Optimized Print Stylesheet -->
+    <link rel="stylesheet" href="/print.css" media="print" />
+
     <style>
       body {
         background-color: #eef2f6; /* Bleu doux */
@@ -65,74 +69,7 @@
         outline: none;
       }
 
-      /* Print Optimization - Standard Document Flow */
-      @media print {
-        @page {
-          size: auto; /* Let user choose Portrait/Landscape */
-          margin: 15mm; /* Standard margins */
-        }
-        
-        html, body {
-          height: auto;
-          width: 100%;
-          background-color: white !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-
-        #root {
-            width: 100%;
-        }
-
-        .no-print {
-          display: none !important;
-        }
-
-        .screen-only {
-          display: none !important;
-        }
-
-        .print-only {
-          display: block !important;
-          width: 100% !important;
-          height: auto !important;
-        }
-
-        /* Standard Layout - Single Column */
-        .print-flow {
-           display: block;
-           width: 100%;
-        }
-
-        .avoid-break {
-          break-inside: avoid;
-          page-break-inside: avoid;
-        }
-        
-        /* High Quality Image Rendering */
-        .print-hq-image {
-          image-rendering: -webkit-optimize-contrast;
-          image-rendering: high-quality;
-        }
-
-        /* Rich Zones (Answer Areas) */
-        .print-rich-zone {
-            background-color: white !important;
-            border: 1px solid #cbd5e1 !important; /* Slate-300 forced */
-            opacity: 1 !important;
-            print-color-adjust: exact !important;
-            -webkit-print-color-adjust: exact !important;
-        }
-        
-        /* Ensure background patterns print correctly */
-        .print-rich-zone div {
-            print-color-adjust: exact !important;
-            -webkit-print-color-adjust: exact !important;
-        }
-      }
-
+      /* Screen specific utilities that Tailwind might miss */
       @media screen {
         .print-only {
           display: none !important;
