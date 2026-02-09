@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { SheetMeta, getSheetIndex, deleteSheet, saveSheet, importSheetFromJSON, loadSheet } from '../utils/storage';
-import { Plus, Trash2, FileText, Calendar, Edit3, Code2, Download, HelpCircle, Upload, FileJson } from 'lucide-react';
+import { Plus, Trash2, FileText, Calendar, Edit3, Code2, Download, HelpCircle, Upload, FileJson, CheckCircle2, AlertCircle } from 'lucide-react';
 import { JsonEditorModal } from './JsonEditorModal';
 import { HelpModal } from './HelpModal';
 
@@ -15,6 +15,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
   // JSON Modal State
   const [jsonModal, setJsonModal] = useState<{ isOpen: boolean; mode: 'import' | 'edit'; sheetId?: string; content: string }>({
@@ -26,6 +27,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
   useEffect(() => {
     loadIndex();
   }, []);
+
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   const loadIndex = () => {
     const index = getSheetIndex();
@@ -45,6 +51,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
     if (confirm("Supprimer définitivement cette fiche ?")) {
       deleteSheet(id);
       loadIndex();
+      showNotification("Fiche supprimée");
     }
   };
 
@@ -71,12 +78,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
   const handleJsonSave = (content: string) => {
       if (jsonModal.mode === 'import') {
           importSheetFromJSON(content);
+          showNotification("Fiche importée avec succès !");
       } else if (jsonModal.mode === 'edit' && jsonModal.sheetId) {
           try {
              const parsed = JSON.parse(content);
              saveSheet({ ...parsed, id: jsonModal.sheetId }, jsonModal.sheetId);
+             showNotification("Modifications enregistrées");
           } catch(e) {
              console.error("Save failed", e);
+             showNotification("Erreur lors de la sauvegarde", "error");
           }
       }
       loadIndex();
@@ -130,9 +140,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
                   const content = ev.target?.result as string;
                   importSheetFromJSON(content);
                   loadIndex();
-                  alert("Fiche importée avec succès !");
+                  showNotification("Fiche importée avec succès !");
               } catch (err) {
-                  alert("Erreur lors de l'import : Fichier invalide.");
+                  showNotification("Fichier invalide ou corrompu.", "error");
               }
           };
           reader.readAsText(file);
@@ -157,6 +167,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
           </div>
       )}
 
+      {/* Fluid Notification Toast */}
+      {notification && (
+        <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[110] flex items-center gap-3 px-6 py-3 rounded-full shadow-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 ${notification.type === 'error' ? 'bg-red-500 text-white' : 'bg-slate-900 text-white'}`}>
+          {notification.type === 'error' ? <AlertCircle size={20} /> : <CheckCircle2 size={20} />}
+          <span className="font-medium text-sm">{notification.message}</span>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
@@ -172,7 +190,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-semibold text-sm hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm group"
              >
                <HelpCircle size={16} className="text-blue-400 group-hover:text-blue-600" />
-               <span className="hidden sm:inline">Aide IA</span>
+               <span className="hidden sm:inline">Guide</span>
              </button>
            </div>
         </div>

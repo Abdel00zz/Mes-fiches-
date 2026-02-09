@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { BlockData, SheetState, BlockType, BLOCK_CONFIG } from '../types';
 import { Block } from './Block';
 import { PrintLayout } from './PrintLayout';
@@ -11,25 +11,40 @@ import { saveSheet } from '../utils/storage';
 interface EditorProps {
   initialState: SheetState;
   onBack: () => void;
+  autoSaveInterval?: number;
 }
 
-export const Editor: React.FC<EditorProps> = ({ initialState, onBack }) => {
+export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveInterval = 1000 }) => {
   const [sheet, setSheet] = useState<SheetState>(initialState);
   const [history, setHistory] = useState<SheetState[]>([initialState]);
-  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  
+  // Ref to track the last saved stringified version to avoid useless writes
+  const lastSavedJson = useRef<string>(JSON.stringify(initialState));
 
-  // Auto-Save Effect
+  // Smart Auto-Save Effect
   useEffect(() => {
+    if (!sheet.id) return;
+
+    // Set unsaved status immediately on change if differs from last save
+    const currentJson = JSON.stringify(sheet);
+    if (currentJson !== lastSavedJson.current) {
+        setSaveStatus('unsaved');
+    }
+
     const timer = setTimeout(() => {
-      // Only auto-save if it has an ID and is not a fresh template opening
-      if (sheet.id) {
+      if (currentJson !== lastSavedJson.current) {
+         setSaveStatus('saving');
          saveSheet(sheet, sheet.id);
-         setIsSaving(false);
+         lastSavedJson.current = currentJson;
+         
+         // Small delay to show "Saving..." before switching back to "Saved"
+         setTimeout(() => setSaveStatus('saved'), 500);
       }
-    }, 1000);
-    setIsSaving(true);
+    }, autoSaveInterval);
+
     return () => clearTimeout(timer);
-  }, [sheet]);
+  }, [sheet, autoSaveInterval]);
 
   const updateSheet = (newState: SheetState) => {
     setHistory(prev => [...prev.slice(-10), newState]);
@@ -83,7 +98,8 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack }) => {
     setSheet(current => {
       const newBlocks = current.blocks.map(b => b.id === id ? { ...b, ...updates } : b);
       const newState = { ...current, blocks: newBlocks };
-      setHistory(prev => [...prev.slice(-10), newState]);
+      // Note: We don't push to history on every character type for performance in this simple implementation
+      // But for major updates we could. For now, relying on block granularity.
       return newState;
     });
   }, []);
@@ -182,8 +198,10 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack }) => {
             <span className="font-semibold text-slate-800 hidden sm:inline tracking-tight line-clamp-1 max-w-[150px]">{sheet.title || "Nouvelle Fiche"}</span>
             <div className="h-5 w-px bg-slate-300 mx-2 opacity-50"></div>
             <button onClick={undo} className="p-2 hover:bg-slate-200/50 rounded-full text-slate-600 transition-colors" title="Annuler"><Undo2 size={18} /></button>
-            <div className="text-xs text-slate-400 font-mono ml-2 flex items-center gap-1">
-                 {isSaving ? 'Sauvegarde...' : 'Sauvegardé'}
+            <div className={`text-xs font-mono ml-2 flex items-center gap-1 transition-colors duration-300 ${saveStatus === 'unsaved' ? 'text-amber-500 font-bold' : 'text-slate-400'}`}>
+                 {saveStatus === 'saving' && 'Sauvegarde...'}
+                 {saveStatus === 'saved' && 'Sauvegardé'}
+                 {saveStatus === 'unsaved' && 'Non enregistré...'}
             </div>
           </div>
 
@@ -257,7 +275,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack }) => {
           </div>
         </div>
 
-        {/* FAB (Still useful for quick append at end if needed, or we can remove it? Let's keep it as a 'Quick Menu') */}
+        {/* Quick Menu */}
         <div className="fixed bottom-8 right-8 flex flex-col items-end gap-3 z-40 group">
           <div className="flex flex-col-reverse items-end gap-3 group-hover:translate-y-0 translate-y-8 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto pb-2">
               {(Object.keys(BLOCK_CONFIG) as BlockType[]).map((type) => (

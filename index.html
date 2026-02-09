@@ -65,17 +65,17 @@
         outline: none;
       }
 
-      /* Print Optimization - Force Landscape & Engraved Look */
+      /* Print Optimization - Landscape, Full Width, High Quality */
       @media print {
         @page {
           size: landscape; 
-          margin: 4mm; /* Very small margins */
+          margin: 0 !important; /* Zero margins for full control */
         }
         
         html, body {
           height: 100%;
           width: 100%;
-          background-color: #eef2f6 !important; /* Force soft blue background */
+          background-color: #f1f5f9 !important; /* Gris structurel */
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           margin: 0 !important;
@@ -98,18 +98,27 @@
           display: block !important;
           width: 100% !important;
           height: auto !important;
-          padding: 0 !important;
+        }
+
+        /* Improved Layout Classes */
+        .print-columns {
+           column-count: 2;
+           column-gap: 12mm;
+           width: 100%;
         }
 
         .avoid-break {
           break-inside: avoid;
           page-break-inside: avoid;
+          display: inline-block; /* Helps prevent fragmentation */
+          width: 100%;
+          margin-bottom: 2mm;
         }
         
-        /* Two columns layout for landscape fluidity */
-        .print-columns {
-           column-count: 2;
-           column-gap: 8mm;
+        /* High Quality Image Rendering */
+        .print-hq-image {
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: high-quality;
         }
       }
 

@@ -12,13 +12,18 @@ const EMPTY_STATE: SheetState = {
   blocks: []
 };
 
+interface AppConfig {
+  autoSaveInterval: number;
+}
+
 export default function App() {
   const [currentView, setCurrentView] = useState<'dashboard' | 'editor'>('dashboard');
   const [currentSheetId, setCurrentSheetId] = useState<string | null>(null);
   const [loadedSheet, setLoadedSheet] = useState<SheetState>(EMPTY_STATE);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [config, setConfig] = useState<AppConfig>({ autoSaveInterval: 1000 });
 
-  // Infrastructure: Seeding LocalStorage from Manifest
+  // Infrastructure: Seeding LocalStorage from Manifest & Config Loading
   useEffect(() => {
     const initializeApp = async () => {
         try {
@@ -26,20 +31,22 @@ export default function App() {
           if (!response.ok) throw new Error("Manifest failed to load");
           
           const manifest = await response.json();
-          const resources = manifest.resources?.initialSheets || [];
+          
+          // 1. Load Config
+          if (manifest.config) {
+             setConfig({
+                 autoSaveInterval: manifest.config.autoSaveInterval || 1000
+             });
+          }
 
-          // Process sequentially to ensure storage integrity
+          // 2. Seed Resources
+          const resources = manifest.resources?.initialSheets || [];
           for (const resource of resources) {
-             // Check if this specific ID already exists in LocalStorage
-             // If it exists, we DO NOT overwrite it, preserving user edits.
-             // If it doesn't exist, we fetch and save it.
              const existing = loadSheet(resource.id);
-             
              if (!existing) {
                  try {
                      const res = await fetch(resource.url);
                      const data = await res.json();
-                     // Save with the specific ID from manifest to track it
                      saveSheet({ ...data, id: resource.id }, resource.id);
                  } catch (err) {
                      console.warn(`Failed to seed resource: ${resource.url}`, err);
@@ -70,7 +77,7 @@ export default function App() {
   const handleCreateSheet = () => {
     const newSheet = { ...EMPTY_STATE, id: Date.now().toString() };
     setLoadedSheet(newSheet);
-    setCurrentSheetId(null); // Will be saved with new ID on first save
+    setCurrentSheetId(null); 
     setCurrentView('editor');
   };
 
@@ -84,7 +91,7 @@ export default function App() {
           <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
               <div className="animate-pulse flex flex-col items-center gap-4">
                   <div className="w-12 h-12 bg-slate-200 rounded-full"></div>
-                  <div className="text-slate-400 font-medium text-sm">Chargement de la bibliothèque...</div>
+                  <div className="text-slate-400 font-medium text-sm">Chargement de l'environnement...</div>
               </div>
           </div>
       );
@@ -94,5 +101,11 @@ export default function App() {
     return <Dashboard onOpen={handleOpenSheet} onCreate={handleCreateSheet} />;
   }
 
-  return <Editor initialState={loadedSheet} onBack={handleBackToDashboard} />;
+  return (
+    <Editor 
+        initialState={loadedSheet} 
+        onBack={handleBackToDashboard} 
+        autoSaveInterval={config.autoSaveInterval}
+    />
+  );
 }

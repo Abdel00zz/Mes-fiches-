@@ -1,5 +1,5 @@
 
-import { SheetState } from '../types';
+import { SheetState, BlockData, BlockType, BLOCK_CONFIG } from '../types';
 
 const PREFIX = 'fb_pro_';
 const INDEX_KEY = 'fb_pro_index';
@@ -9,8 +9,38 @@ export interface SheetMeta {
   title: string;
   subtitle: string;
   updatedAt: number;
-  preview?: string; // Could be extended for thumbnails later
+  preview?: string;
 }
+
+// Validation et réparation des blocs importés
+const sanitizeBlock = (block: any): BlockData => {
+  const validTypes = Object.keys(BLOCK_CONFIG);
+  // Si le type n'existe pas ou est mal écrit, on fallback sur 'remarque' ou 'section'
+  let type = (block.type || 'remarque').toLowerCase();
+  if (!validTypes.includes(type)) {
+      type = 'remarque'; 
+  }
+
+  return {
+    id: block.id || Math.random().toString(36).substr(2, 9),
+    type: type as BlockType,
+    title: block.title || '',
+    content: block.content || block.body || '', // Support legacy "body"
+    zones: Array.isArray(block.zones) ? block.zones : (Array.isArray(block.answerZones) ? block.answerZones : []),
+    images: Array.isArray(block.images) ? block.images : []
+  };
+};
+
+// Validation et réparation de la fiche complète
+const sanitizeSheet = (data: any, forceId?: string): SheetState => {
+  return {
+    id: forceId || data.id || Date.now().toString(36) + Math.random().toString(36).substr(2),
+    title: data.title || "Nouvelle Fiche Importée",
+    subtitle: data.subtitle || "",
+    blocks: Array.isArray(data.blocks) ? data.blocks.map(sanitizeBlock) : [],
+    updatedAt: Date.now()
+  };
+};
 
 // Get all sheets metadata (fast loading)
 export const getSheetIndex = (): SheetMeta[] => {
@@ -18,43 +48,50 @@ export const getSheetIndex = (): SheetMeta[] => {
     const data = localStorage.getItem(INDEX_KEY);
     return data ? JSON.parse(data) : [];
   } catch (e) {
-    console.error("Storage Error", e);
+    console.error("Storage Error: Index corrupted", e);
     return [];
   }
 };
 
 // Save a sheet (updates both content and index)
 export const saveSheet = (sheet: SheetState, id?: string): string => {
-  const sheetId = id || sheet.id || Date.now().toString(36) + Math.random().toString(36).substr(2);
-  const now = Date.now();
-
-  // 1. Save Content
-  const sheetWithId = { ...sheet, id: sheetId, updatedAt: now };
+  // Ensure we have a clean object structure
+  const cleanSheet = sanitizeSheet(sheet, id || sheet.id);
+  const sheetId = cleanSheet.id!;
+  
   try {
-    localStorage.setItem(`${PREFIX}sheet_${sheetId}`, JSON.stringify(sheetWithId));
+    localStorage.setItem(`${PREFIX}sheet_${sheetId}`, JSON.stringify(cleanSheet));
   } catch (e) {
-    alert("Mémoire locale pleine ! Impossible de sauvegarder.");
+    console.error("Storage Full or Error", e);
+    // On pourrait déclencher un event custom ici pour l'UI
     throw e;
   }
 
-  // 2. Update Index
-  const index = getSheetIndex();
-  const existingIdx = index.findIndex(i => i.id === sheetId);
-  
-  const meta: SheetMeta = {
-    id: sheetId,
-    title: sheet.title || "Sans titre",
-    subtitle: sheet.subtitle || "",
-    updatedAt: now
-  };
+  // Update Index only if title/subtitle changed or if it's new, 
+  // to avoid parsing the huge index on every keystroke if we were optimizing further.
+  // For now, we update timestamp every time.
+  try {
+    const index = getSheetIndex();
+    const existingIdx = index.findIndex(i => i.id === sheetId);
+    
+    const meta: SheetMeta = {
+      id: sheetId,
+      title: cleanSheet.title,
+      subtitle: cleanSheet.subtitle,
+      updatedAt: cleanSheet.updatedAt!
+    };
 
-  if (existingIdx >= 0) {
-    index[existingIdx] = meta;
-  } else {
-    index.unshift(meta);
+    if (existingIdx >= 0) {
+      index[existingIdx] = meta;
+    } else {
+      index.unshift(meta);
+    }
+
+    localStorage.setItem(INDEX_KEY, JSON.stringify(index));
+  } catch (err) {
+    console.warn("Failed to update index", err);
   }
 
-  localStorage.setItem(INDEX_KEY, JSON.stringify(index));
   return sheetId;
 };
 
@@ -62,8 +99,13 @@ export const saveSheet = (sheet: SheetState, id?: string): string => {
 export const loadSheet = (id: string): SheetState | null => {
   try {
     const data = localStorage.getItem(`${PREFIX}sheet_${id}`);
-    return data ? JSON.parse(data) : null;
+    if (!data) return null;
+    const parsed = JSON.parse(data);
+    // On sanitize à la volée au chargement pour être sûr d'avoir une structure valide
+    // même si le localStorage a été modifié manuellement
+    return sanitizeSheet(parsed, id);
   } catch (e) {
+    console.error("Failed to load sheet", id, e);
     return null;
   }
 };
@@ -79,28 +121,15 @@ export const deleteSheet = (id: string) => {
 export const importSheetFromJSON = (jsonString: string): string => {
   try {
     const parsed = JSON.parse(jsonString);
-    // Basic validation
-    if (!parsed.blocks || !Array.isArray(parsed.blocks)) throw new Error("Format invalide");
     
-    // Sanitize ID to force new save or keep existing if managing sync
-    // Here we generate a new ID to avoid conflicts on import
+    // Générer un nouvel ID pour l'import pour éviter d'écraser une fiche existante si l'ID est le même
     const newId = Date.now().toString(36) + Math.random().toString(36).substr(2);
     
-    const formatted: SheetState = {
-      ...parsed,
-      id: newId,
-      blocks: parsed.blocks.map((b: any) => ({
-         ...b,
-         id: b.id || Math.random().toString(36).substr(2, 9),
-         content: b.content || b.body || '',
-         zones: b.zones || b.answerZones || [],
-         images: b.images || [],
-         type: b.type.toLowerCase()
-      }))
-    };
+    // Le sanitizer fait tout le travail de nettoyage
+    const formatted = sanitizeSheet(parsed, newId);
     
     return saveSheet(formatted, newId);
   } catch (e) {
-    throw new Error("Fichier JSON corrompu ou invalide.");
+    throw new Error("Fichier JSON invalide ou corrompu.");
   }
 };
