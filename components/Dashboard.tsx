@@ -1,6 +1,6 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { getSheetIndex, deleteSheet, saveSheet, importSheetFromJSON, loadSheet } from '../utils/storage';
-import { SheetMeta } from '../types';
+import { SheetMeta, getSheetIndex, deleteSheet, saveSheet, importSheetFromJSON, loadSheet } from '../utils/storage';
 import { Plus, Trash2, FileText, Calendar, Edit3, Code2, Download, HelpCircle, Upload, FileJson, CheckCircle2, AlertCircle } from 'lucide-react';
 import { JsonEditorModal } from './JsonEditorModal';
 import { HelpModal } from './HelpModal';
@@ -36,7 +36,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
   const loadIndex = () => {
     const index = getSheetIndex();
     const sorted = index.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-    setSheets(sorted);
+    const enriched = sorted.map(meta => {
+        const full = loadSheet(meta.id);
+        return {
+            ...meta,
+            blockCount: full ? full.blocks.filter(b => b.type !== 'section').length : 0
+        };
+    });
+    setSheets(enriched as any);
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
@@ -194,9 +201,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
           {/* Create New Sheet */}
           <button 
             onClick={onCreate}
-            className="flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-blue-500 hover:text-blue-600 hover:bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+            className="flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-300 group shadow-sm hover:shadow-md"
           >
-            <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-slate-100 group-hover:bg-blue-50 transition-all transform group-hover:scale-110">
+            <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-slate-100 group-hover:bg-white group-hover:shadow-lg transition-all transform group-hover:scale-110">
                 <Plus size={24} className="opacity-60 group-hover:opacity-100" />
             </div>
             <span className="font-bold text-sm">Nouvelle fiche vierge</span>
@@ -205,19 +212,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
           {/* Import Sheet Button */}
           <button 
             onClick={handleImportClick}
-            className="flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-purple-500 hover:text-purple-600 hover:bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
+            className="flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50/50 transition-all duration-300 group shadow-sm hover:shadow-md relative overflow-hidden"
           >
              <div className="absolute top-2 right-2 px-2 py-0.5 bg-purple-100 text-purple-600 text-[10px] font-bold uppercase rounded-full">
                  ou Glissez-Déposez
              </div>
-            <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-slate-100 group-hover:bg-purple-50 transition-all transform group-hover:scale-110">
+            <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-slate-100 group-hover:bg-white group-hover:shadow-lg transition-all transform group-hover:scale-110">
                 <Upload size={24} className="opacity-60 group-hover:opacity-100" />
             </div>
             <span className="font-bold text-sm">Importer une fiche (JSON)</span>
           </button>
 
           {/* All Sheets */}
-          {sheets.map((sheet: SheetMeta) => (
+          {sheets.map((sheet: any) => (
             <div 
               key={sheet.id}
               onClick={() => onOpen(sheet.id)}

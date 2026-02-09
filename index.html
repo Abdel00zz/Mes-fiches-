@@ -55,10 +55,6 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Optimized Print Stylesheet -->
-    <link rel="stylesheet" href="/print.css" media="print" />
-
     <style>
       body {
         background-color: #eef2f6; /* Bleu doux */
@@ -69,7 +65,156 @@
         outline: none;
       }
 
-      /* Screen specific utilities that Tailwind might miss */
+      /* No underline on any paragraph or text content */
+      p,
+      .math-content,
+      .math-content p,
+      .math-content-inline,
+      li,
+      span {
+        text-decoration: none;
+      }
+
+      :root {
+        --print-page-margin: 9mm;
+        --print-block-gap: 3.2mm;
+        --print-block-radius: 1.6mm;
+        --print-text-color: #0f172a;
+        --print-muted: #475569;
+        --print-rule: #cbd5e1;
+      }
+
+      /* Print rendering tuned for quality + fidelity */
+      @media print {
+        @page {
+          size: A4 landscape;
+          margin: var(--print-page-margin);
+        }
+
+        html,
+        body {
+          width: 100%;
+          height: auto;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #fff !important;
+          color: var(--print-text-color) !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          text-rendering: geometricPrecision;
+          font-kerning: normal;
+        }
+
+        #root {
+          width: 100%;
+          min-height: 100%;
+          background: #fff !important;
+        }
+
+        .no-print,
+        .screen-only {
+          display: none !important;
+          visibility: hidden !important;
+        }
+
+        .print-only {
+          display: block !important;
+          visibility: visible !important;
+          width: 100% !important;
+          height: auto !important;
+        }
+
+        .print-layout {
+          color: var(--print-text-color) !important;
+        }
+
+        .print-flow {
+          display: block;
+          width: 100%;
+        }
+
+        .avoid-break,
+        .print-block,
+        .print-zone,
+        .print-section {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        .print-block {
+          margin: 0 0 var(--print-block-gap) 0 !important;
+          border: 0.25mm solid rgba(148, 163, 184, 0.65) !important;
+          border-radius: var(--print-block-radius) !important;
+          box-shadow: none !important;
+          background: rgba(241, 245, 249, 0.45) !important;
+        }
+
+        .print-block-header {
+          border-bottom: 0.25mm dashed rgba(148, 163, 184, 0.7) !important;
+        }
+
+        .print-section {
+          margin-top: 1mm !important;
+          margin-bottom: 3mm !important;
+          border-bottom-width: 0.4mm !important;
+        }
+
+        /* Ensure no underlining anywhere in print */
+        p, li, span, div, h1, h2, h3, h4,
+        .math-content, .math-content-inline,
+        .print-block, .print-layout {
+          text-decoration: none !important;
+        }
+
+        /* Ensure answer zone patterns render correctly in print */
+        .print-zone-pattern {
+          background-attachment: local !important;
+          background-repeat: repeat !important;
+        }
+
+        .print-footer {
+          color: var(--print-muted) !important;
+          border-color: var(--print-rule) !important;
+        }
+
+        .print-rich-zone {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          border-color: #64748b !important;
+          border-width: 0.25mm !important;
+          border-style: solid !important;
+          background-color: #ffffff !important;
+        }
+
+        .print-zone-pattern {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          opacity: 1 !important;
+        }
+
+        .print-zone-image {
+          image-rendering: auto;
+          object-fit: contain;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .print-hq-image {
+          image-rendering: auto;
+          filter: contrast(1.04) saturate(1.04);
+          transform: translateZ(0);
+          backface-visibility: hidden;
+          page-break-inside: avoid;
+        }
+
+        .MathJax,
+        mjx-container {
+          color: inherit !important;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+      }
+
       @media screen {
         .print-only {
           display: none !important;

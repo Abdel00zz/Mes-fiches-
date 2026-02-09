@@ -150,7 +150,7 @@ export const processContentForDisplay = (text: string) => {
     if (currentListType) {
         html += `<li class="pl-1 list-none">${line}</li>`;
     } else {
-        html += `<p class="mb-2 leading-relaxed text-slate-800 text-justify">${line}</p>`;
+        html += `<p class="mb-2 leading-relaxed text-slate-800 text-justify no-underline">${line}</p>`;
     }
   }
   

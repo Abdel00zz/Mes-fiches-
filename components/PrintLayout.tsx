@@ -11,12 +11,12 @@ interface PrintLayoutProps {
 
 export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
   return (
-    <div className="w-full min-h-screen bg-white text-slate-900 relative">
+    <div className="print-layout w-full min-h-screen bg-white text-slate-900 relative antialiased">
        {/* Main Sheet Container */}
        <div className="bg-white mx-auto w-full max-w-none print:w-full">
            
            {/* Print Header */}
-           <header className="mb-8 pb-4 text-center border-b-2 border-slate-900">
+           <header className="print-section mb-6 pb-3 text-center border-b-2 border-slate-900 avoid-break">
               <MathContent 
                 html={sheet.title} 
                 tagName="h1" 
@@ -32,7 +32,7 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
            </header>
 
            {/* Standard Flow Layout (Single Column) */}
-           <div className="print-flow space-y-6">
+           <div className="print-flow space-y-3">
               {blocks.map((block) => (
                 <PrintBlock 
                   key={block.id} 
@@ -43,7 +43,7 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
            </div>
 
            {/* Print Footer */}
-           <div className="mt-8 pt-4 border-t border-slate-200 flex justify-between text-[9px] text-slate-400 font-mono uppercase tracking-[0.2em]">
+           <div className="print-footer mt-6 pt-3 border-t border-slate-200 flex justify-between text-[9px] text-slate-500 font-mono uppercase tracking-[0.2em] avoid-break">
               <span>Généré avec FicheBuilder Pro</span>
               <span>{new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
            </div>
