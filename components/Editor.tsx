@@ -4,6 +4,7 @@ import { BlockData, SheetState, BlockType, BLOCK_CONFIG } from '../types';
 import { Block } from './Block';
 import { PrintLayout } from './PrintLayout';
 import { MathContent } from './MathContent';
+import { BlockInserter } from './BlockInserter';
 import { Printer, Download, Plus, Undo2, LayoutTemplate, ArrowLeft } from 'lucide-react';
 import { saveSheet } from '../utils/storage';
 
@@ -54,6 +55,25 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack }) => {
         images: []
       };
       const newState = { ...current, blocks: [...current.blocks, newBlock] };
+      setHistory(prev => [...prev.slice(-10), newState]);
+      return newState;
+    });
+  }, []);
+
+  const insertBlock = useCallback((type: BlockType, index: number) => {
+    setSheet(current => {
+      const newBlock: BlockData = {
+        id: Date.now().toString(),
+        type,
+        title: '',
+        content: '',
+        zones: [],
+        images: []
+      };
+      const newBlocks = [...current.blocks];
+      newBlocks.splice(index, 0, newBlock); // Insert at index
+      
+      const newState = { ...current, blocks: newBlocks };
       setHistory(prev => [...prev.slice(-10), newState]);
       return newState;
     });
@@ -152,7 +172,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack }) => {
          <PrintLayout sheet={sheet} blocks={blockRenderData} />
       </div>
 
-      <div className="screen-only pb-20">
+      <div className="screen-only pb-32">
         {/* Toolbar */}
         <div className="fixed top-4 left-1/2 -translate-x-1/2 h-14 bg-white/80 backdrop-blur-xl border border-white/40 z-50 flex items-center justify-between px-4 sm:px-6 shadow-float rounded-full w-[95%] max-w-5xl transition-all">
           <div className="flex items-center gap-3">
@@ -201,30 +221,43 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack }) => {
               />
             </header>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-0">
               {blockRenderData.length === 0 && (
-                <div className="text-center py-24 text-slate-300 border-2 border-dashed border-slate-200 rounded-2xl bg-white/50">
+                <div 
+                   onClick={() => addBlock('section')}
+                   className="cursor-pointer text-center py-24 text-slate-300 border-2 border-dashed border-slate-200 rounded-2xl bg-white/50 hover:bg-white/80 transition-all hover:border-blue-300 hover:text-blue-400"
+                >
                   <LayoutTemplate size={64} className="mx-auto mb-4 opacity-40" />
-                  <p className="font-serif italic text-lg">Commencez à rédiger votre fiche...</p>
+                  <p className="font-serif italic text-lg">Votre fiche est vide.</p>
+                  <p className="text-sm font-bold mt-2">Cliquez pour ajouter une section</p>
                 </div>
               )}
+              
+              {/* Insert at top */}
+              {blockRenderData.length > 0 && (
+                 <BlockInserter onInsert={(type) => insertBlock(type, 0)} />
+              )}
+
               {blockRenderData.map((block, index) => (
-                <Block
-                  key={block.id}
-                  data={block}
-                  index={index}
-                  label={block.label} 
-                  onUpdate={updateBlock}
-                  onDelete={deleteBlock}
-                  onMove={moveBlock}
-                  onDuplicate={duplicateBlock}
-                />
+                <React.Fragment key={block.id}>
+                  <Block
+                    data={block}
+                    index={index}
+                    label={block.label} 
+                    onUpdate={updateBlock}
+                    onDelete={deleteBlock}
+                    onMove={moveBlock}
+                    onDuplicate={duplicateBlock}
+                  />
+                  {/* Insert after this block */}
+                  <BlockInserter onInsert={(type) => insertBlock(type, index + 1)} />
+                </React.Fragment>
               ))}
             </div>
           </div>
         </div>
 
-        {/* FAB */}
+        {/* FAB (Still useful for quick append at end if needed, or we can remove it? Let's keep it as a 'Quick Menu') */}
         <div className="fixed bottom-8 right-8 flex flex-col items-end gap-3 z-40 group">
           <div className="flex flex-col-reverse items-end gap-3 group-hover:translate-y-0 translate-y-8 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto pb-2">
               {(Object.keys(BLOCK_CONFIG) as BlockType[]).map((type) => (

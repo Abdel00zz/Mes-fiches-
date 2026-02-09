@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SheetMeta, getSheetIndex, deleteSheet, saveSheet, importSheetFromJSON, loadSheet } from '../utils/storage';
-import { Plus, Trash2, FileText, Calendar, Edit3, Code2, Download, HelpCircle, Upload } from 'lucide-react';
+import { Plus, Trash2, FileText, Calendar, Edit3, Code2, Download, HelpCircle, Upload, FileJson } from 'lucide-react';
 import { JsonEditorModal } from './JsonEditorModal';
 import { HelpModal } from './HelpModal';
 
@@ -14,6 +14,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
   const [sheets, setSheets] = useState<SheetMeta[]>([]);
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
   
   // JSON Modal State
   const [jsonModal, setJsonModal] = useState<{ isOpen: boolean; mode: 'import' | 'edit'; sheetId?: string; content: string }>({
@@ -28,9 +29,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
 
   const loadIndex = () => {
     const index = getSheetIndex();
-    // Sort by most recently updated
     const sorted = index.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-    
     const enriched = sorted.map(meta => {
         const full = loadSheet(meta.id);
         return {
@@ -53,7 +52,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
     e.stopPropagation();
     const sheet = loadSheet(id);
     if (!sheet) return;
-    
     setJsonModal({
         isOpen: true,
         mode: 'edit',
@@ -74,7 +72,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
       if (jsonModal.mode === 'import') {
           importSheetFromJSON(content);
       } else if (jsonModal.mode === 'edit' && jsonModal.sheetId) {
-          // Parse and Save existing local sheet
           try {
              const parsed = JSON.parse(content);
              saveSheet({ ...parsed, id: jsonModal.sheetId }, jsonModal.sheetId);
@@ -105,11 +102,64 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
       return new Date(timestamp).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
   };
 
+  // --- Drag & Drop Logic ---
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!isDraggingFile) setIsDraggingFile(true);
+  }, [isDraggingFile]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Only set false if leaving the window/main container
+      if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+      setIsDraggingFile(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDraggingFile(false);
+      
+      const file = e.dataTransfer.files?.[0];
+      if (file && (file.type === 'application/json' || file.name.endsWith('.json'))) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+              try {
+                  const content = ev.target?.result as string;
+                  importSheetFromJSON(content);
+                  loadIndex();
+                  alert("Fiche importée avec succès !");
+              } catch (err) {
+                  alert("Erreur lors de l'import : Fichier invalide.");
+              }
+          };
+          reader.readAsText(file);
+      }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-8 font-sans text-slate-600">
+    <div 
+        className="min-h-screen bg-[#f8fafc] p-8 font-sans text-slate-600 relative"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+    >
+      {/* Global Drag Overlay */}
+      {isDraggingFile && (
+          <div className="fixed inset-0 z-[100] bg-blue-600/90 backdrop-blur-sm flex flex-col items-center justify-center text-white animate-in fade-in duration-200 pointer-events-none">
+              <div className="bg-white/20 p-8 rounded-full mb-6 animate-bounce">
+                 <FileJson size={64} />
+              </div>
+              <h2 className="text-4xl font-serif font-black tracking-tight mb-2">Lâchez pour importer</h2>
+              <p className="text-blue-100 font-medium">Import instantané de votre fiche JSON</p>
+          </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         
-        {/* Header simple */}
+        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
            <div>
              <h1 className="text-3xl font-serif font-black text-slate-900 tracking-tight">Mes Fiches</h1>
@@ -127,10 +177,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
            </div>
         </div>
 
-        {/* Grille Unique */}
+        {/* Grille */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 animate-in fade-in duration-500">
           
-          {/* Create New Sheet Button */}
+          {/* Create New Sheet */}
           <button 
             onClick={onCreate}
             className="flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-300 group shadow-sm hover:shadow-md"
@@ -141,11 +191,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
             <span className="font-bold text-sm">Nouvelle fiche vierge</span>
           </button>
 
-          {/* Import Sheet Button - HYPER PRATIQUE */}
+          {/* Import Sheet Button */}
           <button 
             onClick={handleImportClick}
-            className="flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50/50 transition-all duration-300 group shadow-sm hover:shadow-md"
+            className="flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50/50 transition-all duration-300 group shadow-sm hover:shadow-md relative overflow-hidden"
           >
+             <div className="absolute top-2 right-2 px-2 py-0.5 bg-purple-100 text-purple-600 text-[10px] font-bold uppercase rounded-full">
+                 ou Glissez-Déposez
+             </div>
             <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-slate-100 group-hover:bg-white group-hover:shadow-lg transition-all transform group-hover:scale-110">
                 <Upload size={24} className="opacity-60 group-hover:opacity-100" />
             </div>
