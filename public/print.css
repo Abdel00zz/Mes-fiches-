@@ -1,13 +1,8 @@
 
 /* 
   FicheBuilder Pro - Optimized Print Stylesheet 
-  Target: A4 Paper, High Fidelity, Clean Layout
+  This stylesheet is now used by html2canvas to render the sheet before PDF generation.
 */
-
-@page {
-  size: auto;   /* Auto allows user to select Portrait/Landscape */
-  margin: 12mm; /* Slightly reduced margins to maximize content area */
-}
 
 /* --- Global Reset & Visibility --- */
 body, html, #root {

@@ -60,14 +60,11 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
   const bottomImages = data.images.filter(img => img.position === 'bottom');
   const floatImages = data.images.filter(img => img.position === 'float');
 
-  // PRINT: Using shadow-engraved instead of borders for "cadre ordure gravé naturellement" look
+  // Cleaned up classes - print.css handles opacity and shadows
   return (
     <div className={`
       relative mb-4 rounded-lg avoid-break
       bg-white/40
-      print:shadow-engraved
-      print:bg-opacity-50
-      print:border-none
       w-full
     `}>
       {/* Header - Compact */}

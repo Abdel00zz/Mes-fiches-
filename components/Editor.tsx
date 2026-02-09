@@ -1,13 +1,16 @@
 
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom/client';
 import { BlockData, SheetState, BlockType, BLOCK_CONFIG } from '../types';
 import { Block } from './Block';
 import { PrintLayout } from './PrintLayout';
 import { MathContent } from './MathContent';
 import { BlockInserter } from './BlockInserter';
-import { Printer, Download, Plus, Undo2, LayoutTemplate, ArrowLeft, HelpCircle } from 'lucide-react';
+import { Printer, Download, Plus, Undo2, LayoutTemplate, ArrowLeft, Loader2 } from 'lucide-react';
 import { saveSheet } from '../utils/storage';
 import { HelpModal } from './HelpModal';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface EditorProps {
   initialState: SheetState;
@@ -19,16 +22,12 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
   const [sheet, setSheet] = useState<SheetState>(initialState);
   const [history, setHistory] = useState<SheetState[]>([initialState]);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   
-  // Ref to track the last saved stringified version to avoid useless writes
   const lastSavedJson = useRef<string>(JSON.stringify(initialState));
 
-  // Smart Auto-Save Effect
   useEffect(() => {
     if (!sheet.id) return;
-
-    // Set unsaved status immediately on change if differs from last save
     const currentJson = JSON.stringify(sheet);
     if (currentJson !== lastSavedJson.current) {
         setSaveStatus('unsaved');
@@ -39,19 +38,12 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
          setSaveStatus('saving');
          saveSheet(sheet, sheet.id);
          lastSavedJson.current = currentJson;
-         
-         // Small delay to show "Saving..." before switching back to "Saved"
          setTimeout(() => setSaveStatus('saved'), 500);
       }
     }, autoSaveInterval);
 
     return () => clearTimeout(timer);
   }, [sheet, autoSaveInterval]);
-
-  const updateSheet = (newState: SheetState) => {
-    setHistory(prev => [...prev.slice(-10), newState]);
-    setSheet(newState);
-  };
 
   const undo = () => {
     if (history.length > 1) {
@@ -64,12 +56,7 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
   const addBlock = useCallback((type: BlockType) => {
     setSheet(current => {
       const newBlock: BlockData = {
-        id: Date.now().toString(),
-        type,
-        title: '',
-        content: '',
-        zones: [],
-        images: []
+        id: Date.now().toString(), type, title: '', content: '', zones: [], images: []
       };
       const newState = { ...current, blocks: [...current.blocks, newBlock] };
       setHistory(prev => [...prev.slice(-10), newState]);
@@ -80,16 +67,10 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
   const insertBlock = useCallback((type: BlockType, index: number) => {
     setSheet(current => {
       const newBlock: BlockData = {
-        id: Date.now().toString(),
-        type,
-        title: '',
-        content: '',
-        zones: [],
-        images: []
+        id: Date.now().toString(), type, title: '', content: '', zones: [], images: []
       };
       const newBlocks = [...current.blocks];
-      newBlocks.splice(index, 0, newBlock); // Insert at index
-      
+      newBlocks.splice(index, 0, newBlock);
       const newState = { ...current, blocks: newBlocks };
       setHistory(prev => [...prev.slice(-10), newState]);
       return newState;
@@ -99,29 +80,21 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
   const updateBlock = useCallback((id: string, updates: Partial<BlockData>) => {
     setSheet(current => {
       const newBlocks = current.blocks.map(b => b.id === id ? { ...b, ...updates } : b);
-      const newState = { ...current, blocks: newBlocks };
-      // Note: We don't push to history on every character type for performance in this simple implementation
-      // But for major updates we could. For now, relying on block granularity.
-      return newState;
+      return { ...current, blocks: newBlocks };
     });
   }, []);
 
   const duplicateBlock = useCallback((sourceBlock: BlockData) => {
     setSheet(current => {
-        // Create deep copy with new ID
         const newBlock: BlockData = {
             ...sourceBlock,
             id: Date.now().toString(),
-            // Ensure deep copy of images and zones
             zones: sourceBlock.zones.map(z => ({...z, id: Math.random().toString(36).substr(2, 9)})),
             images: sourceBlock.images.map(i => ({...i, id: Math.random().toString(36).substr(2, 9)}))
         };
-        
-        // Insert after the original
         const index = current.blocks.findIndex(b => b.id === sourceBlock.id);
         const newBlocks = [...current.blocks];
         newBlocks.splice(index + 1, 0, newBlock);
-        
         const newState = { ...current, blocks: newBlocks };
         setHistory(prev => [...prev.slice(-10), newState]);
         return newState;
@@ -142,7 +115,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
     setSheet(current => {
       const index = current.blocks.findIndex(b => b.id === id);
       if ((direction === 'up' && index === 0) || (direction === 'down' && index === current.blocks.length - 1)) return current;
-      
       const newBlocks = [...current.blocks];
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
       [newBlocks[index], newBlocks[targetIndex]] = [newBlocks[targetIndex], newBlocks[index]];
@@ -152,34 +124,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
     });
   }, []);
 
-  // --- Optimized Print Handler ---
-  // Blurs active elements to remove carets/focus rings
-  // Typesets MathJax
-  // Waits for a frame to ensure rendering
-  const handlePrint = async () => {
-      // 1. Blur to remove focus styles
-      if (document.activeElement instanceof HTMLElement) {
-          document.activeElement.blur();
-      }
-
-      // 2. Ensure MathJax is fresh
-      const w = window as any;
-      if (w.MathJax) {
-          try {
-              await w.MathJax.typesetPromise();
-          } catch(e) {
-              console.warn("MathJax typeset failed before print", e);
-          }
-      }
-
-      // 3. Wait for UI update then print
-      requestAnimationFrame(() => {
-          setTimeout(() => {
-              window.print();
-          }, 150); // Small buffer for DOM paint
-      });
-  };
-
   const exportJSON = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sheet, null, 2));
     const downloadAnchorNode = document.createElement('a');
@@ -188,6 +132,78 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
+  };
+  
+  const handleGeneratePdf = async () => {
+    setIsGeneratingPdf(true);
+    
+    // Prepare a temporary, off-screen container for rendering
+    const printContainer = document.getElementById('print-container');
+    if (!printContainer) {
+        console.error("Print container not found!");
+        setIsGeneratingPdf(false);
+        return;
+    }
+    
+    // Ensure MathJax is rendered before capture
+    const w = window as any;
+    if (w.MathJax) {
+        await w.MathJax.typesetPromise();
+    }
+
+    // Render the PrintLayout component into the off-screen container
+    const root = ReactDOM.createRoot(printContainer);
+    root.render(<PrintLayout sheet={sheet} blocks={blockRenderData} />);
+
+    try {
+        // Allow a frame for rendering
+        await new Promise(resolve => requestAnimationFrame(resolve));
+
+        const canvas = await html2canvas(printContainer, {
+            scale: 2, // Higher resolution for better quality
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const ratio = canvasWidth / pdfWidth;
+        const canvasPageHeight = pdfHeight * ratio;
+
+        let heightLeft = canvasHeight;
+        let position = 0;
+        
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight / ratio);
+        heightLeft -= canvasPageHeight;
+
+        while (heightLeft > 0) {
+            position -= pdfHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight / ratio);
+            heightLeft -= canvasPageHeight;
+        }
+        
+        const fileName = (sheet.title || "fiche").replace(/[^a-z0-9]/gi, '_').toLowerCase() + ".pdf";
+        pdf.save(fileName);
+
+    } catch (error) {
+        console.error("Erreur lors de la génération du PDF:", error);
+        alert("Une erreur est survenue lors de la création du PDF.");
+    } finally {
+        // Clean up the temporary render
+        root.unmount();
+        setIsGeneratingPdf(false);
+    }
   };
 
   const blockRenderData = useMemo(() => {
@@ -201,11 +217,11 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
       let label = '';
       if (block.type === 'section') {
         sectionCounter++;
-        label = String.fromCharCode(64 + sectionCounter); // A, B, C...
+        label = String.fromCharCode(64 + sectionCounter);
       } else {
         if (typeCounters[block.type] !== undefined) {
           typeCounters[block.type]++;
-          label = typeCounters[block.type].toString(); // 1, 2, 3...
+          label = typeCounters[block.type].toString();
         }
       }
       return { ...block, label };
@@ -214,10 +230,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
 
   return (
     <div className="min-h-screen bg-[#f0f4f8] text-slate-900">
-      <div className="print-only hidden">
-         <PrintLayout sheet={sheet} blocks={blockRenderData} />
-      </div>
-
       <div className="screen-only pb-32">
         {/* Toolbar */}
         <div className="fixed top-4 left-1/2 -translate-x-1/2 h-14 bg-white/80 backdrop-blur-xl border border-white/40 z-50 flex items-center justify-between px-4 sm:px-6 shadow-float rounded-full w-[95%] max-w-5xl transition-all">
@@ -236,27 +248,30 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => setIsHelpOpen(true)} className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-blue-50 text-blue-600 transition-colors mr-1" title="Aide IA / Format JSON">
-                <HelpCircle size={18} />
-                <span className="hidden sm:inline font-bold text-xs uppercase tracking-wider">Guide</span>
-            </button>
-
             <button onClick={exportJSON} className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full hover:bg-slate-100 text-xs font-bold uppercase tracking-wider text-slate-600 transition-colors">
                 <Download size={14} />
                 <span className="hidden sm:inline">Exporter JSON</span>
             </button>
-            <button onClick={handlePrint} className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ml-2">
-                <Printer size={14} />
-                <span className="hidden sm:inline">Imprimer</span>
+            <button 
+              onClick={handleGeneratePdf} 
+              disabled={isGeneratingPdf}
+              className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2 w-[120px] rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 ml-2 disabled:bg-slate-500 disabled:cursor-wait"
+            >
+              {isGeneratingPdf ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <>
+                  <Printer size={14} />
+                  <span className="hidden sm:inline">Imprimer</span>
+                </>
+              )}
             </button>
           </div>
         </div>
 
         {/* Editor Content */}
         <div className="pt-24 px-4 sm:px-8 flex justify-center">
-          {/* Landscape Orientation Simulation */}
           <div className="w-full max-w-[297mm] min-h-[210mm] bg-[#eef2f6] shadow-none rounded-xl p-[5mm] relative mb-20">
-            
             <header className="mb-12 pb-6 text-center border-b border-slate-200/50">
               <MathContent 
                 html={sheet.title} 
@@ -286,7 +301,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
                 </div>
               )}
               
-              {/* Insert at top */}
               {blockRenderData.length > 0 && (
                  <BlockInserter onInsert={(type) => insertBlock(type, 0)} />
               )}
@@ -302,7 +316,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
                     onMove={moveBlock}
                     onDuplicate={duplicateBlock}
                   />
-                  {/* Insert after this block */}
                   <BlockInserter onInsert={(type) => insertBlock(type, index + 1)} />
                 </React.Fragment>
               ))}
@@ -326,17 +339,10 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
                 </button>
               ))}
           </div>
-
           <button className="w-14 h-14 bg-slate-900 rounded-full text-white shadow-xl shadow-slate-900/30 flex items-center justify-center hover:bg-black transition-all hover:rotate-90 duration-300 z-50">
               <Plus size={28} />
           </button>
         </div>
-
-        {/* Help Modal */}
-        <HelpModal 
-            isOpen={isHelpOpen} 
-            onClose={() => setIsHelpOpen(false)} 
-        />
       </div>
     </div>
   );

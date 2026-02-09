@@ -56,10 +56,10 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
     switch (zone.style) {
       case 'lines':
         // Standard Seyes/Ruled line height 8mm.
-        // We use backgroundSize to force a strict 8mm repeat pattern.
-        // This prevents floating point errors seen with repeating-linear-gradient.
+        // FIX: Use calc(100% - 1px) to ensure the line is drawn exactly at the bottom of the tile
+        // regardless of sub-pixel rendering. This fixes the "non-uniform margin" bug.
         baseStyle = {
-          backgroundImage: `linear-gradient(to bottom, transparent 0mm, transparent 7.8mm, ${color} 7.8mm, ${color} 8mm)`,
+          backgroundImage: `linear-gradient(to bottom, transparent calc(100% - 1px), ${color} calc(100% - 1px))`,
           backgroundSize: '100% 8mm',
           backgroundRepeat: 'repeat-y',
           backgroundAttachment: 'local',
@@ -69,8 +69,12 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
         break;
       case 'grid':
         // 5x5mm grid
+        // Same fix for grid to be perfectly sharp
         baseStyle = {
-          backgroundImage: `linear-gradient(${color} 0.2mm, transparent 0.2mm), linear-gradient(90deg, ${color} 0.2mm, transparent 0.2mm)`,
+          backgroundImage: `
+            linear-gradient(${color} 1px, transparent 1px), 
+            linear-gradient(90deg, ${color} 1px, transparent 1px)
+          `,
           backgroundSize: '5mm 5mm',
           opacity: 0.3
         };
@@ -78,7 +82,7 @@ export const AnswerZone: React.FC<Props> = ({ zone, onUpdate, onDelete, readOnly
       case 'dots':
         // 5mm spaced dots
         baseStyle = {
-          backgroundImage: `radial-gradient(${color} 0.4mm, transparent 0.4mm)`,
+          backgroundImage: `radial-gradient(${color} 1px, transparent 1px)`,
           backgroundSize: '5mm 5mm',
           opacity: 0.5
         };
