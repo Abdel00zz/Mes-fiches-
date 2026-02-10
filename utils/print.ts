@@ -42,6 +42,10 @@ export const generatePrintCSS = (options: PrintOptions): string => {
         column-fill: auto;
       }
 
+      #print-preview-sheet .print-flow > * + * {
+        margin-top: 0 !important;
+      }
+
       /* Break Avoidance */
       .avoid-break,
       #print-preview-sheet .print-block,
@@ -58,13 +62,10 @@ export const generatePrintCSS = (options: PrintOptions): string => {
         border: none !important;
       }
 
-      /* Block Styling — left accent preserved, no other borders */
+      /* Block Styling — compact, no borders, no left accent */
       #print-preview-sheet .print-block {
-        margin: 0 0 2mm 0 !important;
-        border-top: none !important;
-        border-right: none !important;
-        border-bottom: none !important;
-        /* border-left is set per-block via Tailwind type colors */
+        margin: 0 !important;
+        border: none !important;
         border-radius: 1mm !important;
         box-shadow: none !important;
         -webkit-print-color-adjust: exact !important;

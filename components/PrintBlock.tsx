@@ -63,11 +63,10 @@ export const PrintBlock: React.FC<PrintBlockProps> = memo(({ data, label }) => {
   // PRINT: Clean card with subtle type-colored left accent
   return (
     <div className={`
-      print-block relative mb-3 rounded-md avoid-break
+      print-block relative rounded-md avoid-break
       ${config.containerBg}
       print:shadow-none
       w-full
-      border-l-[3px] ${config.borderColor}
     `}>
       {/* Header */}
       <div className="print-block-header flex items-center gap-2.5 px-3.5 pt-2.5 pb-2">

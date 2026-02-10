@@ -11,7 +11,7 @@ interface PrintLayoutProps {
 
 export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
   return (
-    <div className="print-layout w-full min-h-screen bg-white text-slate-900 relative antialiased">
+    <div className="print-layout w-full bg-white text-slate-900 relative antialiased">
        {/* Main Sheet Container */}
        <div className="bg-white mx-auto w-full max-w-none print:w-full">
            
@@ -32,7 +32,7 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
            </header>
 
            {/* Standard Flow Layout */}
-           <div className="print-flow space-y-2">
+           <div className="print-flow">
               {blocks.map((block) => (
                 <PrintBlock 
                   key={block.id} 
