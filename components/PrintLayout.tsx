@@ -32,7 +32,7 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
            </header>
 
            {/* Standard Flow Layout */}
-           <div className="print-flow space-y-2">
+           <div className="print-flow">
               {blocks.map((block) => (
                 <PrintBlock 
                   key={block.id} 

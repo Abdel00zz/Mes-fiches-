@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { SheetMeta } from '../utils/storage';
-import { Trash2, FileText, Calendar, Edit3, Code2 } from 'lucide-react';
+import { Trash2, FileText, Calendar, Edit3, Code2, ChevronRight } from 'lucide-react';
 
 interface SheetCardProps {
     sheet: SheetMeta & { blockCount: number };
@@ -11,8 +11,26 @@ interface SheetCardProps {
     onUpdateTitle: (newTitle: string) => void;
 }
 
+const CARD_ACCENTS = [
+    { from: 'from-blue-500', to: 'to-indigo-500', light: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-200' },
+    { from: 'from-emerald-500', to: 'to-teal-500', light: 'bg-emerald-50', text: 'text-emerald-600', ring: 'ring-emerald-200' },
+    { from: 'from-amber-500', to: 'to-orange-500', light: 'bg-amber-50', text: 'text-amber-600', ring: 'ring-amber-200' },
+    { from: 'from-rose-500', to: 'to-pink-500', light: 'bg-rose-50', text: 'text-rose-600', ring: 'ring-rose-200' },
+    { from: 'from-violet-500', to: 'to-purple-500', light: 'bg-violet-50', text: 'text-violet-600', ring: 'ring-violet-200' },
+    { from: 'from-cyan-500', to: 'to-sky-500', light: 'bg-cyan-50', text: 'text-cyan-600', ring: 'ring-cyan-200' },
+];
+
 export const SheetCard: React.FC<SheetCardProps> = ({ sheet, onOpen, onDelete, onOpenJsonEditor, onUpdateTitle }) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+    const accent = useMemo(() => {
+        let hash = 0;
+        for (let i = 0; i < (sheet.id || '').length; i++) {
+            hash = ((hash << 5) - hash) + (sheet.id || '').charCodeAt(i);
+            hash |= 0;
+        }
+        return CARD_ACCENTS[Math.abs(hash) % CARD_ACCENTS.length];
+    }, [sheet.id]);
 
     const handleEditClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -37,22 +55,27 @@ export const SheetCard: React.FC<SheetCardProps> = ({ sheet, onOpen, onDelete, o
     };
 
     return (
-        <div 
+        <div
             onClick={onOpen}
-            className="group bg-white border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-relief transition-all duration-300 cursor-pointer flex flex-col justify-between min-h-[160px] relative overflow-hidden"
+            className="group relative bg-white rounded-2xl cursor-pointer flex flex-col justify-between min-h-[180px] overflow-hidden shadow-sm hover:shadow-float transition-all duration-500 hover:-translate-y-1"
         >
-            <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-bl from-white via-white to-transparent z-10">
-                <div className="flex items-center gap-1 bg-white/90 backdrop-blur rounded-lg p-1 shadow-sm border border-slate-100">
-                    <button onClick={handleEditClick} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="Renommer"><Edit3 size={14} /></button>
-                    <button onClick={(e) => { e.stopPropagation(); onOpenJsonEditor(); }} className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded" title="Modifier le JSON"><Code2 size={14} /></button>
-                    <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title="Supprimer"><Trash2 size={14} /></button>
+            {/* Top gradient accent bar */}
+            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${accent.from} ${accent.to} opacity-60 group-hover:opacity-100 group-hover:h-1.5 transition-all duration-500`} />
+
+            {/* Action buttons */}
+            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0 z-10">
+                <div className="flex items-center gap-0.5 bg-white/95 backdrop-blur-sm rounded-lg p-0.5 shadow-md border border-slate-100/80">
+                    <button onClick={handleEditClick} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Renommer"><Edit3 size={13} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); onOpenJsonEditor(); }} className="p-1.5 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-md transition-colors" title="Modifier le JSON"><Code2 size={13} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Supprimer"><Trash2 size={13} /></button>
                 </div>
             </div>
 
-            <div>
+            {/* Content */}
+            <div className="p-5 pt-5 flex-grow">
                 {isEditingTitle ? (
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       defaultValue={sheet.title}
                       autoFocus
                       className="w-full text-lg font-serif font-bold text-slate-900 border-b-2 border-blue-500 focus:outline-none bg-transparent"
@@ -61,16 +84,26 @@ export const SheetCard: React.FC<SheetCardProps> = ({ sheet, onOpen, onDelete, o
                       onKeyDown={handleTitleKeyDown}
                     />
                 ) : (
-                    <h3 className="font-serif font-bold text-slate-900 text-lg leading-tight line-clamp-2 mb-1" title={sheet.title}>
+                    <h3 className="font-serif font-bold text-slate-800 text-lg leading-tight line-clamp-2 mb-2 group-hover:text-slate-950 transition-colors" title={sheet.title}>
                        {sheet.title}
                     </h3>
                 )}
-                <p className="text-xs text-slate-400 font-medium line-clamp-2">{sheet.subtitle || "Sans sous-titre"}</p>
+                <p className="text-xs text-slate-400 font-medium line-clamp-2 leading-relaxed">{sheet.subtitle || "Sans sous-titre"}</p>
             </div>
 
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-50 text-[10px] uppercase tracking-wider font-bold text-slate-400">
-                <div className="flex items-center gap-1"><FileText size={12} /><span>{sheet.blockCount} BLOCS</span></div>
-                <div className="flex items-center gap-1"><Calendar size={12} /><span>{formatDate(sheet.updatedAt)}</span></div>
+            {/* Footer */}
+            <div className="px-5 pb-4 flex items-center justify-between">
+                <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                    <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${accent.light} ${accent.text} text-[10px]`}>
+                        <FileText size={11} />
+                        <span>{sheet.blockCount} blocs</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <Calendar size={11} />
+                        <span>{formatDate(sheet.updatedAt)}</span>
+                    </div>
+                </div>
+                <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-300" />
             </div>
         </div>
     );

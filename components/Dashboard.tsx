@@ -136,17 +136,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
            </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 animate-in fade-in duration-500">
-          <button onClick={onCreate} className="flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-300 group shadow-sm hover:shadow-md">
-            <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-slate-100 group-hover:bg-white group-hover:shadow-lg transition-all transform group-hover:scale-110"><Plus size={24} /></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12 animate-in fade-in duration-500">
+          <button onClick={onCreate} className="flex flex-col items-center justify-center min-h-[180px] border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:border-blue-400 hover:text-blue-600 hover:bg-gradient-to-br hover:from-blue-50/80 hover:to-indigo-50/40 transition-all duration-500 group">
+            <div className="w-14 h-14 mb-3 rounded-2xl flex items-center justify-center bg-slate-100/80 group-hover:bg-white group-hover:shadow-lg group-hover:shadow-blue-200/50 transition-all duration-500 transform group-hover:scale-110 group-hover:-rotate-3"><Plus size={26} /></div>
             <span className="font-bold text-sm">Nouvelle fiche vierge</span>
           </button>
 
-          <div onClick={() => document.getElementById('file-input')?.click()} className="flex flex-col cursor-pointer items-center justify-center min-h-[160px] border-2 border-dashed border-slate-300 rounded-xl text-slate-400 hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50/50 transition-all duration-300 group shadow-sm hover:shadow-md">
+          <div onClick={() => document.getElementById('file-input')?.click()} className="flex flex-col cursor-pointer items-center justify-center min-h-[180px] border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:border-violet-400 hover:text-violet-600 hover:bg-gradient-to-br hover:from-violet-50/80 hover:to-purple-50/40 transition-all duration-500 group">
             <input type="file" id="file-input" className="hidden" accept=".json,application/json" onChange={(e) => e.target.files?.[0] && handleFileDrop(e.target.files[0])} />
-            <div className="w-12 h-12 mb-3 rounded-full flex items-center justify-center bg-slate-100 group-hover:bg-white group-hover:shadow-lg transition-all transform group-hover:scale-110"><Upload size={24} /></div>
+            <div className="w-14 h-14 mb-3 rounded-2xl flex items-center justify-center bg-slate-100/80 group-hover:bg-white group-hover:shadow-lg group-hover:shadow-violet-200/50 transition-all duration-500 transform group-hover:scale-110 group-hover:rotate-3"><Upload size={26} /></div>
             <span className="font-bold text-sm">Importer depuis un fichier</span>
-            <p className="text-xs mt-1">Glissez-déposez un fichier .json</p>
+            <p className="text-xs mt-1.5 text-slate-300">Glissez-déposez un fichier .json</p>
           </div>
 
           {sheets.map(sheet => (
