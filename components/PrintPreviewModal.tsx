@@ -1,8 +1,7 @@
-
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SheetState, BlockData } from '../types';
 import { PrintLayout } from './PrintLayout';
-import { X, Printer, Settings } from 'lucide-react';
+import { X, Printer, Settings, FileText, MoveHorizontal, Text, Maximize2 } from 'lucide-react';
 import { generatePrintCSS, PrintOptions } from '../utils/print';
 
 interface Props {
@@ -23,6 +22,7 @@ const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (props) 
     <select {...props} className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-sm font-medium text-slate-800 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
 );
 
+
 export const PrintPreviewModal: React.FC<Props> = ({ isOpen, onClose, sheet, blocks }) => {
     const [options, setOptions] = useState<PrintOptions>({
         paper: 'a4',
@@ -35,38 +35,54 @@ export const PrintPreviewModal: React.FC<Props> = ({ isOpen, onClose, sheet, blo
     const printStyles = useMemo(() => generatePrintCSS(options), [options]);
 
     const handlePrint = useCallback(async () => {
-        const previewSheet = document.getElementById('print-preview-sheet');
-        if (previewSheet && (window as any).MathJax?.typesetPromise) {
-            await (window as any).MathJax.typesetPromise([previewSheet]);
+        // Ensure MathJax renders before printing
+        const w = window as any;
+        if (w.MathJax?.typesetPromise) {
+            await w.MathJax.typesetPromise();
         }
-        await new Promise(r => setTimeout(r, 50));
+        await new Promise(r => setTimeout(r, 50)); // Small delay for rendering flush
 
         const styleEl = document.createElement('style');
         styleEl.id = 'dynamic-print-styles';
-        const printIsolationCSS = `
-            @media print {
-                body > *:not(.print-preview-modal) { display: none !important; }
-                .print-preview-modal { position: static !important; background: transparent !important; padding: 0 !important; margin: 0 !important; border: none !important; box-shadow: none !important; }
-                .print-preview-controls, .print-preview-header { display: none !important; }
-                .print-preview-content-wrapper { padding: 0 !important; overflow: visible !important; background: transparent !important; }
-                #print-preview-sheet { box-shadow: none !important; margin: 0 !important; }
-            }
-        `;
-        styleEl.innerHTML = printStyles + printIsolationCSS;
+        styleEl.innerHTML = printStyles;
         document.head.appendChild(styleEl);
-        
-        window.print();
-        
-        document.head.removeChild(styleEl);
-    }, [printStyles]);
+        document.body.classList.add('printing-active');
 
+        window.print();
+
+        // Cleanup
+        document.body.classList.remove('printing-active');
+        document.head.removeChild(styleEl);
+
+    }, [printStyles]);
 
     if (!isOpen) return null;
 
     return (
-        <div className="print-preview-modal fixed inset-0 z-[100] bg-slate-800/50 flex flex-col animate-in fade-in duration-200 screen-only">
+        <div className="print-preview-modal fixed inset-0 z-[100] bg-slate-800/50 flex flex-col animate-in fade-in duration-200">
+            <style>{`
+                @media print {
+                    .print-preview-controls { display: none !important; }
+                    .print-preview-modal {
+                        position: static !important;
+                        inset: auto !important;
+                        background: #fff !important;
+                        overflow: visible !important;
+                        display: block !important;
+                    }
+                    .print-preview-content {
+                        width: 100% !important;
+                        height: auto !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        overflow: visible;
+                        display: block !important;
+                    }
+                }
+            `}</style>
+            
             {/* Header */}
-            <header className="print-preview-header bg-white/80 backdrop-blur-lg shadow-md h-16 flex items-center justify-between px-6 z-20 shrink-0">
+            <header className="print-preview-controls bg-white/80 backdrop-blur-lg shadow-md h-16 flex items-center justify-between px-6 z-20 shrink-0">
                 <div className="flex items-center gap-3">
                     <Settings size={20} className="text-blue-600" />
                     <h2 className="text-lg font-bold text-slate-800 font-serif">Options d'impression</h2>
@@ -97,13 +113,15 @@ export const PrintPreviewModal: React.FC<Props> = ({ isOpen, onClose, sheet, blo
                         </Select>
                     </Control>
                     <Control label="Colonnes">
-                        <Select value={options.columns} onChange={(e) => setOptions(o => ({...o, columns: parseInt(e.target.value) as 1 | 2}))}>
+                       {/* Fix: Cast parsed integer to the correct literal type for 'columns'. */}
+<Select value={options.columns} onChange={(e) => setOptions(o => ({...o, columns: parseInt(e.target.value) as 1 | 2}))}>
                             <option value={1}>1 Colonne</option>
                             <option value={2}>2 Colonnes</option>
                         </Select>
                     </Control>
                      <Control label="Taille Police">
-                        <Select value={options.fontSize} onChange={(e) => setOptions(o => ({...o, fontSize: parseInt(e.target.value) as 10 | 11 | 12}))}>
+                        {/* Fix: Cast parsed integer to the correct literal type for 'fontSize'. */}
+<Select value={options.fontSize} onChange={(e) => setOptions(o => ({...o, fontSize: parseInt(e.target.value) as 10 | 11 | 12}))}>
                             <option value={10}>Petite (10pt)</option>
                             <option value={11}>Normale (11pt)</option>
                             <option value={12}>Grande (12pt)</option>
@@ -119,7 +137,8 @@ export const PrintPreviewModal: React.FC<Props> = ({ isOpen, onClose, sheet, blo
                 </aside>
 
                 {/* Preview Area */}
-                <div className="print-preview-content-wrapper flex-grow p-8 overflow-auto">
+                <div className="print-preview-content flex-grow p-8 overflow-auto">
+                    <style>{printStyles}</style>
                     <div id="print-preview-sheet" className="mx-auto bg-white shadow-2xl">
                          <PrintLayout sheet={sheet} blocks={blocks} />
                     </div>

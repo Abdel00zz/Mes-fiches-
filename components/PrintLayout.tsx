@@ -16,7 +16,7 @@ export const PrintLayout: React.FC<PrintLayoutProps> = ({ sheet, blocks }) => {
        <div className="bg-white mx-auto w-full max-w-none print:w-full">
            
            {/* Print Header */}
-           <header className="print-section mb-5 pb-4 text-center">
+           <header className="print-section mb-5 pb-4 text-center avoid-break">
               <MathContent
                 html={sheet.title}
                 tagName="h1"

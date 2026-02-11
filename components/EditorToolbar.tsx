@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Printer, Undo2, Redo2, ArrowLeft, Upload } from 'lucide-react';
+import { Printer, Undo2, Redo2, ArrowLeft } from 'lucide-react';
 
 interface EditorToolbarProps {
     onBack: () => void;
@@ -9,7 +9,6 @@ interface EditorToolbarProps {
     canUndo: boolean;
     canRedo: boolean;
     onPrint: () => void;
-    onImport: () => void;
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
@@ -18,8 +17,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     onRedo,
     canUndo,
     canRedo,
-    onPrint,
-    onImport
+    onPrint
 }) => {
     return (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 h-16 bg-white/80 backdrop-blur-2xl border border-white/40 z-50 flex items-center justify-between px-4 sm:px-6 shadow-float rounded-2xl w-[95%] max-w-6xl transition-all duration-300">
@@ -38,9 +36,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
           {/* Right section */}
           <div className="flex justify-end gap-2 w-1/3">
-             <button onClick={onImport} className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all active:scale-95" title="Importer des blocs">
-                <Upload size={20} />
-            </button>
             <button onClick={onPrint} className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-900/20 transition-all active:scale-95" title="Imprimer">
                 <Printer size={20} />
             </button>

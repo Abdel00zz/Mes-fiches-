@@ -68,6 +68,10 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
 
   return (
     <div className="min-h-screen bg-[#f0f4f8] text-slate-900">
+      <div className="print-only hidden">
+         <PrintLayout sheet={sheet} blocks={blockRenderData} />
+      </div>
+
       <div className="screen-only pb-32">
         <EditorToolbar 
           onBack={onBack}
@@ -76,7 +80,6 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
           canUndo={canUndo}
           canRedo={canRedo}
           onPrint={() => setIsPrintModalOpen(true)}
-          onImport={() => openModal('import')}
         />
         
         {notification && (

@@ -1,4 +1,3 @@
-
 import React, { useState, memo } from 'react';
 import { BlockData, BlockImage } from '../types';
 import { MathContent } from './MathContent';
@@ -78,6 +77,7 @@ export const Block: React.FC<BlockProps> = memo(({
   const handleImageDrop = (e: React.DragEvent) => {
     e.preventDefault(); 
     e.stopPropagation(); 
+    // FIX: Convert FileList to an array using spread syntax for reliable type inference.
     const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
     if (files.length > 0) {
       const reader = new FileReader();

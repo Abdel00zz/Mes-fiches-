@@ -74,6 +74,22 @@
       span {
         text-decoration: none;
       }
+
+      /* Hide screen-only elements when printing is active */
+      body.printing-active .screen-only {
+        display: none !important;
+      }
+      
+      /* Show print-only when printing is active */
+      body.printing-active .print-only {
+        display: block !important;
+      }
+
+      @media screen {
+        .print-only {
+          display: none !important;
+        }
+      }
     </style>
   <script type="importmap">
 {
