@@ -18,6 +18,7 @@ export const useSheetEditor = ({
 }: UseSheetEditorProps) => {
   const [sheet, setSheet] = useState<SheetState>(initialState);
   const [history, setHistory] = useState<SheetState[]>([initialState]);
+  const [redoStack, setRedoStack] = useState<SheetState[]>([]);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [modalState, setModalState] = useState<{ [key in ModalType]?: boolean }>({});
@@ -26,7 +27,7 @@ export const useSheetEditor = ({
 
   const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
     setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
+    setTimeout(() => setNotification(null), 2000); // Shorter duration for save confirmation
   };
   
   const openModal = (type: ModalType) => setModalState(prev => ({ ...prev, [type]: true }));
@@ -56,7 +57,8 @@ export const useSheetEditor = ({
         setSaveStatus('saving');
         saveSheet(sheet, sheet.id);
         lastSavedJson.current = currentJson;
-        setTimeout(() => setSaveStatus('saved'), 500);
+        showNotification('Enregistré');
+        setSaveStatus('saved');
       }
     }, autoSaveInterval);
 
@@ -64,6 +66,7 @@ export const useSheetEditor = ({
   }, [sheet, autoSaveInterval]);
 
   const updateSheetWithHistory = (newState: SheetState) => {
+    setRedoStack([]); // Clear redo stack on new action
     setHistory(prev => [...prev.slice(-10), newState]);
     setSheet(newState);
   };
@@ -97,14 +100,26 @@ export const useSheetEditor = ({
 
   const undo = () => {
     if (history.length > 1) {
+      const current = history[history.length - 1];
       const newHistory = history.slice(0, -1);
       setHistory(newHistory);
       setSheet(newHistory[newHistory.length - 1]);
+      setRedoStack(prev => [current, ...prev]);
+    }
+  };
+
+  const redo = () => {
+    if (redoStack.length > 0) {
+      const nextState = redoStack[0];
+      const newRedoStack = redoStack.slice(1);
+      setHistory(prev => [...prev, nextState]);
+      setSheet(nextState);
+      setRedoStack(newRedoStack);
     }
   };
   
   const modifyBlocks = (blockModifier: (blocks: BlockData[]) => BlockData[]) => {
-      const newState = { ...sheet, blocks: blockModifier(sheet.blocks) };
+      const newState = { ...sheet, blocks: blockModifier(sheet.blocks), updatedAt: Date.now() };
       updateSheetWithHistory(newState);
   };
 
@@ -127,7 +142,8 @@ export const useSheetEditor = ({
   const updateBlock = useCallback((id: string, updates: Partial<BlockData>) => {
     setSheet(current => ({
       ...current,
-      blocks: current.blocks.map(b => b.id === id ? { ...b, ...updates } : b)
+      blocks: current.blocks.map(b => b.id === id ? { ...b, ...updates } : b),
+      updatedAt: Date.now()
     }));
   }, []);
 
@@ -176,12 +192,14 @@ export const useSheetEditor = ({
   return {
     sheet,
     setSheet,
-    history,
-    saveStatus,
     notification,
     modalState,
-
+    
+    canUndo: history.length > 1,
+    canRedo: redoStack.length > 0,
     undo,
+    redo,
+
     addBlock,
     insertBlock,
     updateBlock,

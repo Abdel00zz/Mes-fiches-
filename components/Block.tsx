@@ -78,7 +78,7 @@ export const Block: React.FC<BlockProps> = memo(({
   const handleImageDrop = (e: React.DragEvent) => {
     e.preventDefault(); 
     e.stopPropagation(); 
-    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/'));
     if (files.length > 0) {
       const reader = new FileReader();
       const position = dragLocation || 'float';

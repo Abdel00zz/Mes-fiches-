@@ -22,10 +22,12 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
   const {
     sheet,
     setSheet,
-    saveStatus,
     notification,
     modalState,
+    canUndo,
+    canRedo,
     undo,
+    redo,
     addBlock,
     insertBlock,
     updateBlock,
@@ -66,21 +68,19 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
 
   return (
     <div className="min-h-screen bg-[#f0f4f8] text-slate-900">
-      <div className="print-only hidden">
-         <PrintLayout sheet={sheet} blocks={blockRenderData} />
-      </div>
-
       <div className="screen-only pb-32">
         <EditorToolbar 
           onBack={onBack}
-          sheetTitle={sheet.title}
-          saveStatus={saveStatus}
           onUndo={undo}
+          onRedo={redo}
+          canUndo={canUndo}
+          canRedo={canRedo}
           onPrint={() => setIsPrintModalOpen(true)}
+          onImport={() => openModal('import')}
         />
         
         {notification && (
-          <div className={`fixed top-20 left-1/2 -translate-x-1/2 z-[110] flex items-center gap-3 px-6 py-3 rounded-full shadow-2xl animate-in slide-in-from-top-5 fade-in duration-300 ${notification.type === 'error' ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
+          <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[110] flex items-center gap-3 px-6 py-3 rounded-full shadow-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 ${notification.type === 'error' ? 'bg-red-500 text-white' : 'bg-slate-900 text-white'}`}>
             {notification.type === 'error' ? <AlertCircle size={20} /> : <CheckCircle2 size={20} />}
             <span className="font-medium text-sm">{notification.message}</span>
           </div>
@@ -89,8 +89,8 @@ export const Editor: React.FC<EditorProps> = ({ initialState, onBack, autoSaveIn
         <div className="pt-24 px-4 sm:px-8 flex justify-center">
           <div className="w-full max-w-[297mm] min-h-[210mm] bg-[#eef2f6] shadow-none rounded-xl p-[5mm] relative mb-20">
             <header className="mb-12 pb-6 text-center border-b border-slate-200/50">
-              <MathContent html={sheet.title} tagName="h1" className="text-5xl font-serif font-black text-slate-900 mb-3 uppercase tracking-tighter" onChange={(html) => setSheet(s => ({...s, title: html}))} placeholder="TITRE DE LA FICHE" />
-              <MathContent html={sheet.subtitle} tagName="div" className="text-xl text-slate-500 font-medium font-mono tracking-tight" onChange={(html) => setSheet(s => ({...s, subtitle: html}))} placeholder="Sous-titre / Classe" />
+              <MathContent html={sheet.title} tagName="h1" className="text-5xl font-serif font-black text-slate-900 mb-3 uppercase tracking-tighter" onChange={(html) => setSheet(s => ({...s, title: html, updatedAt: Date.now()}))} placeholder="TITRE DE LA FICHE" />
+              <MathContent html={sheet.subtitle} tagName="div" className="text-xl text-slate-500 font-medium font-mono tracking-tight" onChange={(html) => setSheet(s => ({...s, subtitle: html, updatedAt: Date.now()}))} placeholder="Sous-titre / Classe" />
             </header>
 
             <div className="flex flex-col gap-0">

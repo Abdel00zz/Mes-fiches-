@@ -55,6 +55,13 @@ export const generatePrintCSS = (options: PrintOptions): string => {
         page-break-inside: avoid;
       }
 
+      /* FIX: Allow the first block after the header to break to prevent large empty spaces on page 1 */
+      #print-preview-sheet .print-flow > .print-block:first-of-type,
+      #print-preview-sheet .print-flow > .print-section:first-of-type + .print-block {
+          break-inside: auto;
+          page-break-inside: auto;
+      }
+
       #print-preview-sheet .print-section {
         column-span: ${options.columns > 1 ? 'all' : 'auto'};
         margin-top: 3mm !important;
