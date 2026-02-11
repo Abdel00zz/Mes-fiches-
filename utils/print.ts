@@ -45,21 +45,21 @@ export const generatePrintCSS = (options: PrintOptions): string => {
       #print-preview-sheet .print-flow > * + * {
         margin-top: 0 !important;
       }
-
-      /* Break Avoidance */
-      .avoid-break,
-      #print-preview-sheet .print-block,
-      #print-preview-sheet .print-zone,
-      #print-preview-sheet .print-section {
-        break-inside: avoid;
-        page-break-inside: avoid;
+      
+      /* --- BREAK AVOIDANCE STRATEGY --- */
+      /* General rule: Allow blocks to break to prevent large gaps. */
+      #print-preview-sheet .print-block {
+        break-inside: auto;
+        page-break-inside: auto;
       }
 
-      /* FIX: Allow the first block after the header to break to prevent large empty spaces on page 1 */
-      #print-preview-sheet .print-flow > .print-block:first-of-type,
-      #print-preview-sheet .print-flow > .print-section:first-of-type + .print-block {
-          break-inside: auto;
-          page-break-inside: auto;
+      /* Critical items that SHOULD NOT break */
+      .avoid-break,
+      #print-preview-sheet .print-zone,
+      #print-preview-sheet .print-section,
+      #print-preview-sheet .print-image-container {
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
 
       #print-preview-sheet .print-section {
@@ -101,7 +101,6 @@ export const generatePrintCSS = (options: PrintOptions): string => {
       #print-preview-sheet .print-hq-image,
       #print-preview-sheet .print-zone-image {
         image-rendering: auto;
-        page-break-inside: avoid;
       }
 
       /* Footer */
