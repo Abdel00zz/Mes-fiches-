@@ -59,21 +59,30 @@ export const PrintPreviewModal: React.FC<Props> = ({ isOpen, onClose, sheet, blo
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-slate-800/50 flex flex-col animate-in fade-in duration-200 screen-only">
+        <div className="print-preview-modal fixed inset-0 z-[100] bg-slate-800/50 flex flex-col animate-in fade-in duration-200">
             <style>{`
                 @media print {
-                    .print-preview-modal, .print-preview-controls { display: none !important; }
+                    .print-preview-controls { display: none !important; }
+                    .print-preview-modal {
+                        position: static !important;
+                        inset: auto !important;
+                        background: #fff !important;
+                        overflow: visible !important;
+                        display: block !important;
+                    }
                     .print-preview-content {
-                        position: absolute;
-                        top: 0; left: 0;
-                        width: 100vw; height: 100vh;
+                        width: 100% !important;
+                        height: auto !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
                         overflow: visible;
+                        display: block !important;
                     }
                 }
             `}</style>
             
             {/* Header */}
-            <header className="bg-white/80 backdrop-blur-lg shadow-md h-16 flex items-center justify-between px-6 z-20 shrink-0">
+            <header className="print-preview-controls bg-white/80 backdrop-blur-lg shadow-md h-16 flex items-center justify-between px-6 z-20 shrink-0">
                 <div className="flex items-center gap-3">
                     <Settings size={20} className="text-blue-600" />
                     <h2 className="text-lg font-bold text-slate-800 font-serif">Options d'impression</h2>
@@ -90,7 +99,7 @@ export const PrintPreviewModal: React.FC<Props> = ({ isOpen, onClose, sheet, blo
             {/* Main Content */}
             <main className="flex-grow flex bg-slate-200 overflow-hidden">
                 {/* Controls Panel */}
-                <aside className="w-64 bg-white p-6 overflow-y-auto space-y-6 shrink-0 border-r border-slate-200">
+                <aside className="print-preview-controls w-64 bg-white p-6 overflow-y-auto space-y-6 shrink-0 border-r border-slate-200">
                     <Control label="Format Papier">
                         <Select value={options.paper} onChange={(e) => setOptions(o => ({...o, paper: e.target.value as any}))}>
                             <option value="a4">A4 (210 x 297mm)</option>
@@ -128,7 +137,7 @@ export const PrintPreviewModal: React.FC<Props> = ({ isOpen, onClose, sheet, blo
                 </aside>
 
                 {/* Preview Area */}
-                <div className="flex-grow p-8 overflow-auto">
+                <div className="print-preview-content flex-grow p-8 overflow-auto">
                     <style>{printStyles}</style>
                     <div id="print-preview-sheet" className="mx-auto bg-white shadow-2xl">
                          <PrintLayout sheet={sheet} blocks={blocks} />

@@ -48,11 +48,15 @@ export const generatePrintCSS = (options: PrintOptions): string => {
 
       /* Break Avoidance */
       .avoid-break,
-      #print-preview-sheet .print-block,
       #print-preview-sheet .print-zone,
       #print-preview-sheet .print-section {
         break-inside: avoid;
         page-break-inside: avoid;
+      }
+
+      #print-preview-sheet .print-block {
+        break-inside: auto;
+        page-break-inside: auto;
       }
 
       #print-preview-sheet .print-section {
