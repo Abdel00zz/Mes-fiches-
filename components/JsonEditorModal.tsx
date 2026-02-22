@@ -139,9 +139,8 @@ export const JsonEditorModal: React.FC<JsonEditorModalProps> = ({
                 {allowFileImport && (
                     <div className="relative w-full sm:w-auto">
                         <input type="file" accept=".json" onChange={handleFileSelect} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                        <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold hover:bg-slate-200 transition-all border border-slate-200 group">
-                            <Upload size={16} className="group-hover:-translate-y-0.5 transition-transform" /> 
-                            <span>Importer un fichier</span>
+                        <button className="w-full sm:w-auto px-4 py-2 bg-white text-slate-700 rounded-lg text-xs font-semibold uppercase tracking-wide hover:bg-slate-50 hover:text-slate-900 transition-all border border-slate-200 shadow-sm hover:shadow-md active:scale-95 text-center">
+                            Importer un fichier
                         </button>
                     </div>
                 )}
