@@ -133,3 +133,14 @@ export const importSheetFromJSON = (jsonString: string): string => {
     throw new Error("Fichier JSON invalide ou corrompu.");
   }
 };
+
+export const getAllSheets = (): SheetState[] => {
+  const index = getSheetIndex();
+  return index.map(meta => loadSheet(meta.id)).filter((s): s is SheetState => s !== null);
+};
+
+export const clearAllData = () => {
+   const index = getSheetIndex();
+   index.forEach(meta => localStorage.removeItem(`${PREFIX}sheet_${meta.id}`));
+   localStorage.removeItem(INDEX_KEY);
+};

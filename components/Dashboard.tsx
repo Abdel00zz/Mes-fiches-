@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { SheetMeta, getSheetIndex, deleteSheet, importSheetFromJSON, loadSheet, saveSheet } from '../utils/storage';
-import { Plus, Upload, FileJson, CheckCircle2, AlertCircle, HelpCircle } from 'lucide-react';
+import { Plus, Upload, FileJson, CheckCircle2, AlertCircle, HelpCircle, Database } from 'lucide-react';
 import { JsonEditorModal } from './JsonEditorModal';
 import { HelpModal } from './HelpModal';
+import { GlobalImportExportModal } from './GlobalImportExportModal';
 import { SheetCard } from './SheetCard';
 
 interface DashboardProps {
@@ -14,6 +15,7 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
   const [sheets, setSheets] = useState<(SheetMeta & { blockCount: number })[]>([]);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isIOModalOpen, setIsIOModalOpen] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
@@ -54,6 +56,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
     if (!sheet) return;
     setJsonModal({ isOpen: true, sheetId: id, content: JSON.stringify(sheet, null, 2) });
   };
+
+  const handleOpenImportModal = () => {
+    setJsonModal({ isOpen: true, sheetId: undefined, content: '' });
+  };
   
   const handleFileDrop = (file: File) => {
     if (file && (file.type === 'application/json' || file.name.endsWith('.json'))) {
@@ -73,14 +79,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
   };
 
   const handleJsonSave = (content: string) => {
-      if (jsonModal.sheetId) {
-          try {
-             const parsed = JSON.parse(content);
+      try {
+         const parsed = JSON.parse(content);
+         if (jsonModal.sheetId) {
              saveSheet({ ...parsed, id: jsonModal.sheetId }, jsonModal.sheetId);
              showNotification("Modifications enregistrées");
-          } catch(e) {
-             showNotification("Erreur de sauvegarde : JSON invalide", "error");
-          }
+         } else {
+             const newId = importSheetFromJSON(content);
+             showNotification("Fiche importée avec succès !");
+             onOpen(newId);
+         }
+      } catch(e) {
+         showNotification("Erreur de sauvegarde : JSON invalide", "error");
       }
       loadIndex();
   };
@@ -130,10 +140,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
              <h1 className="text-3xl font-serif font-black text-slate-900 tracking-tight">Mes Fiches</h1>
              <p className="text-slate-400 mt-1 font-medium text-sm">Gérez et éditez vos fiches de révision</p>
            </div>
-           <button onClick={() => setIsHelpOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-semibold text-sm hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm group">
-             <HelpCircle size={16} className="text-blue-400 group-hover:text-blue-600" />
-             <span className="hidden sm:inline">Guide</span>
-           </button>
+           <div className="flex gap-3">
+             <button onClick={() => setIsIOModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-semibold text-sm hover:border-emerald-400 hover:text-emerald-600 transition-all shadow-sm group">
+               <Database size={16} className="text-emerald-400 group-hover:text-emerald-600" />
+               <span className="hidden sm:inline">Import/Export</span>
+             </button>
+             <button onClick={() => setIsHelpOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-semibold text-sm hover:border-blue-400 hover:text-blue-600 transition-all shadow-sm group">
+               <HelpCircle size={16} className="text-blue-400 group-hover:text-blue-600" />
+               <span className="hidden sm:inline">Guide</span>
+             </button>
+           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12 animate-in fade-in duration-500">
@@ -142,11 +158,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
             <span className="font-bold text-sm">Nouvelle fiche vierge</span>
           </button>
 
-          <div onClick={() => document.getElementById('file-input')?.click()} className="flex flex-col cursor-pointer items-center justify-center min-h-[180px] border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:border-violet-400 hover:text-violet-600 hover:bg-gradient-to-br hover:from-violet-50/80 hover:to-purple-50/40 transition-all duration-500 group">
-            <input type="file" id="file-input" className="hidden" accept=".json,application/json" onChange={(e) => e.target.files?.[0] && handleFileDrop(e.target.files[0])} />
+          <div onClick={handleOpenImportModal} className="flex flex-col cursor-pointer items-center justify-center min-h-[180px] border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 hover:border-violet-400 hover:text-violet-600 hover:bg-gradient-to-br hover:from-violet-50/80 hover:to-purple-50/40 transition-all duration-500 group">
             <div className="w-14 h-14 mb-3 rounded-2xl flex items-center justify-center bg-slate-100/80 group-hover:bg-white group-hover:shadow-lg group-hover:shadow-violet-200/50 transition-all duration-500 transform group-hover:scale-110 group-hover:rotate-3"><Upload size={26} /></div>
             <span className="font-bold text-sm">Importer depuis un fichier</span>
-            <p className="text-xs mt-1.5 text-slate-300">Glissez-déposez un fichier .json</p>
+            <p className="text-xs mt-1.5 text-slate-300">Glissez-déposez ou collez du JSON</p>
           </div>
 
           {sheets.map(sheet => (
@@ -177,8 +192,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpen, onCreate }) => {
         </div>
       </div>
 
-      <JsonEditorModal isOpen={jsonModal.isOpen} onClose={() => setJsonModal({ ...jsonModal, isOpen: false })} initialValue={jsonModal.content} onSave={handleJsonSave} title="Modifier le code source" allowFileImport={false} />
+      <JsonEditorModal 
+        isOpen={jsonModal.isOpen} 
+        onClose={() => setJsonModal({ ...jsonModal, isOpen: false })} 
+        initialValue={jsonModal.content} 
+        onSave={handleJsonSave} 
+        title={jsonModal.sheetId ? "Modifier le code source" : "Importer une fiche"} 
+        allowFileImport={true} 
+      />
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+      <GlobalImportExportModal isOpen={isIOModalOpen} onClose={() => setIsIOModalOpen(false)} onImportComplete={loadIndex} />
     </div>
   );
 };
